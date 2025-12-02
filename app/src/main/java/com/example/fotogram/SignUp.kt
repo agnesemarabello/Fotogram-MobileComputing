@@ -1,6 +1,6 @@
 package com.example.fotogram
 
-import android.net.Uri
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,11 +36,22 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.ui.draw.clip
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.client.HttpClient
+import io.ktor.client.plugins.api.ClientPlugin
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiationConfig
+import io.ktor.websocket.WebSocketDeflateExtension
+import io.ktor.websocket.WebSocketDeflateExtension.Companion.install
+import kotlinx.serialization.Serializable
+import okhttp3.OkHttp
+
+const val BASE_URL = "https://develop.ewlab.di.unimi.it/mc/2526/"
+
 
 @Composable
 fun SignUp() {
     var username by remember { mutableStateOf("") }
-    var profileImageUri by remember { mutableStateOf<Uri?>(null) }
+    var imgBase64 by remember { mutableStateOf<String>("") }
 
     Box(
         modifier = Modifier
@@ -134,7 +145,7 @@ fun SignUp() {
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
-                                    imageVector = if (profileImageUri == null) Icons.Filled.Add else Icons.Filled.Check,
+                                    imageVector = if (imgBase64 == "") Icons.Filled.Add else Icons.Filled.Check,
                                     contentDescription = "Stato selezione immagine",
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -157,3 +168,4 @@ fun SignUp() {
         }
     }
 }
+
