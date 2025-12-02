@@ -1,6 +1,6 @@
 package com.example.fotogram
 
-import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,23 +36,14 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.ui.draw.clip
-import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.client.HttpClient
-import io.ktor.client.plugins.api.ClientPlugin
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiationConfig
-import io.ktor.websocket.WebSocketDeflateExtension
-import io.ktor.websocket.WebSocketDeflateExtension.Companion.install
-import kotlinx.serialization.Serializable
-import okhttp3.OkHttp
-
-const val BASE_URL = "https://develop.ewlab.di.unimi.it/mc/2526/"
+import kotlinx.coroutines.launch
 
 
 @Composable
 fun SignUp() {
     var username by remember { mutableStateOf("") }
     var imgBase64 by remember { mutableStateOf<String>("") }
-
+    val scope = rememberCoroutineScope()
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -158,7 +149,17 @@ fun SignUp() {
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = {},
+                onClick = {
+                    scope.launch {
+                        val requestManager = RequestManager()
+                        val response = requestManager.registrationRequest()
+                        if (response != null) {
+                            Log.d("SignUp", "SID: ${response.sessionId}, UID: ${response.userId}")
+                        } else {
+                            Log.d("SignUp", "Registrazione fallita")
+                        }
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 35.dp)
