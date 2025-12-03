@@ -60,6 +60,8 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json")
     implementation(libs.firebase.crashlytics.buildtools)
 
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

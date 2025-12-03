@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.launch
 
 
@@ -43,7 +44,16 @@ import kotlinx.coroutines.launch
 fun SignUp() {
     var username by remember { mutableStateOf("") }
     var imgBase64 by remember { mutableStateOf<String>("") }
+
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    val dataStoreManager = remember {DataStoreManager(context)}
+    val requestManager = remember {RequestManager(dataStoreManager)}
+
+    val isUsernameValid = username.length <= 15
+    val isReadyToRegister = isUsernameValid //&& imgBase64.isNotEmpty()
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -150,16 +160,42 @@ fun SignUp() {
 
             Button(
                 onClick = {
+                    if(!isReadyToRegister) {
+                        Log.d("SignUp", "Dati mancanti o non validi.")
+                        return@Button
+                    }
                     scope.launch {
-                        val requestManager = RequestManager()
+                        val requestManager = RequestManager(dataStoreManager)
                         val response = requestManager.registrationRequest()
-                        if (response != null) {
-                            Log.d("SignUp", "SID: ${response.sessionId}, UID: ${response.userId}")
-                        } else {
-                            Log.d("SignUp", "Registrazione fallita")
+
+                        response?.let { regResponse ->
+                            val SID = regResponse.sessionId
+                            val UID = regResponse.userId
+
+                            dataStoreManager.saveSession(SID, UID)
+                            Log.i(
+                                "SignUp",
+                                "Dati di sessione salvati nel DataStore -> SID: $SID, UID: $UID"
+                            )
+
+                            val profileDetails = requestManager.updateProfileRequest(
+                                newUsername = username,
+                                newBio = "Ciao! Sono nuovo su Fotogram.",
+                                newDateOfBirth = "2000-01-01"
+                            )
+
+                            if (profileDetails != null) {
+                                Log.d(
+                                    "SignUp",
+                                    "Profilo salvato -> SID: ${response.sessionId}, UID: ${response.userId}"
+                                )
+                            } else {
+                                Log.d("SignUp", "Caricamento dati profilo fallito.")
+                            }
                         }
                     }
                 },
+                enabled = isReadyToRegister,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 35.dp)
