@@ -41,7 +41,7 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun SignUp() {
+fun SignUpScreen(onRegistrationComplete: () -> Unit){
     var username by remember { mutableStateOf("") }
     var imgBase64 by remember { mutableStateOf<String>("") }
 
@@ -189,11 +189,13 @@ fun SignUp() {
                                     "SignUp",
                                     "Profilo salvato -> SID: ${response.sessionId}, UID: ${response.userId}"
                                 )
+                                onRegistrationComplete()
                             } else {
                                 Log.d("SignUp", "Caricamento dati profilo fallito.")
                             }
                         }
                     }
+
                 },
                 enabled = isReadyToRegister,
                 modifier = Modifier
