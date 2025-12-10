@@ -15,19 +15,20 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
+import io.ktor.client.request.invoke
 
 @Composable
 fun NavigationBar() {
         NavigationBar(
             modifier = Modifier.height(100.dp),
-            containerColor = Color(0xFFACB4E0),
+            containerColor = Color.LightGray,
             contentColor = Color.White,
         ) {
             NavigationBarItem(
                 icon = { Icon(
                     Icons.Filled.Home,
                     contentDescription = "Feed",
-                    modifier = Modifier.size(35.dp)) },
+                    modifier = Modifier.size(32.dp)) },
                 label = {Text("Feed")},
                 colors = NavigationBarItemDefaults.colors(
                   indicatorColor = Color.Transparent
@@ -39,7 +40,7 @@ fun NavigationBar() {
                 icon = { Icon(
                     Icons.Filled.Person,
                     contentDescription = "Profile",
-                    modifier = Modifier.size(35.dp)) },
+                    modifier = Modifier.size(32.dp)) },
                 label = { Text("Profile") },
                 selected = false,
                 onClick = { /* TODO: Handle navigation click */ }
