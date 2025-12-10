@@ -84,13 +84,13 @@ fun LoadingScreen() {
                 text = "Fotogram",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary // Colore primario del tema
+                color = MaterialTheme.colorScheme.primary
             )
 
             Spacer(modifier = Modifier.weight(1.5f))
 
             CircularProgressIndicator(
-                color = MaterialTheme.colorScheme.secondary // Colore secondario per contrasto
+                color = MaterialTheme.colorScheme.secondary
             )
 
             Spacer(modifier = Modifier.height(32.dp))
