@@ -1,6 +1,5 @@
 package com.example.fotogram
 
-import android.media.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +23,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.Image
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+
 
 @Composable
 fun PostCard(post: Post) {
@@ -76,21 +80,21 @@ fun PostContentImage(post: Post) {
                 .height(400.dp),
             contentScale = ContentScale.Crop
         )
-    } else {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(400.dp)
-                .background(Color.LightGray),
-            contentAlignment = Alignment.Center
-        ) {
-            Text("Immagine non caricata")
-        }
     }
 }
 
 @Composable
 fun PostCaption(post: Post) {
+
+    val dateTimeString = try {
+        val instant = Instant.parse(post.createdAt)
+        val localDateTime = instant.atZone(ZoneId.systemDefault()).toLocalDateTime()
+        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm", Locale.getDefault())
+        localDateTime.format(formatter)
+    } catch (e: Exception) {
+       post.createdAt
+    }
+
     if (!post.contentText.isNullOrEmpty()) {
         Text(
             text = post.contentText,
@@ -100,7 +104,7 @@ fun PostCaption(post: Post) {
     }
 
     Text(
-        text = "Pubblicato il: ${post.createdAt}",
+        text = "Data pubblicazione: $dateTimeString",
         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
         style = MaterialTheme.typography.bodySmall,
         color = Color.Gray
