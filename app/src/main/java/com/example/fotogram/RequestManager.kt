@@ -6,7 +6,9 @@ import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.accept
+import io.ktor.client.request.get
 import io.ktor.client.request.header
+import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
@@ -16,6 +18,8 @@ import kotlinx.serialization.Serializable
 import java.lang.Exception
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
+import io.ktor.http.isSuccess
+import kotlinx.serialization.SerialName
 
 const val BASE_URL = "https://develop.ewlab.di.unimi.it/mc/2526/"
 
@@ -59,8 +63,30 @@ data class ProfileDetailsResponse(
 
 )
 
-class RequestManager(private val dataStoreManager: DataStoreManager) {
+@Serializable
+data class PostLocation(
+    val latitude: Double,
+    val longitude: Double
+)
 
+@Serializable
+data class FeedPreview(
+    val id: Int,
+    val areYouFollowingAuthor: Boolean,
+)
+@Serializable
+data class Post(
+    val id: Int,
+
+    val authorId: Int,
+    val createdAt: String,
+    val contentPicture: String,
+
+    val contentText: String? = null, //assumo per ora che il testo sia opzionale
+    val location: PostLocation? = null, //idem
+)
+
+class RequestManager(private val dataStoreManager: DataStoreManager) {
     suspend fun registrationRequest(): UserRegistrationResponse? {
         val REGISTRATION_ENDPOINT = BASE_URL + "user"
 
@@ -125,6 +151,128 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
 
         } catch (e: Exception) {
             Log.d("RequestManager", "Errore durante l'aggiornamento del profilo -> ${e.message}")
+            return null
+        }
+    }
+
+    suspend fun getFeedRequest(
+        startPostId: String? = null
+    ): List<Post>? {
+        val FEED_ENDPOINT = BASE_URL + "feed"
+        val SID = dataStoreManager.getSID()
+        if(SID.isNullOrEmpty()) {
+            Log.d("RequestManager", "ERRORE -> SID mancante.")
+            return null
+        }
+
+        Log.i("RequestManager", "Caricamento Feed in corso... (Start Post ID: $startPostId)")
+        try {
+            val response = httpClient.get(FEED_ENDPOINT) {
+                header("x-session-id", SID)
+
+                startPostId?.let {
+                    parameter("startPostId", it)
+                }
+
+                accept(ContentType.Application.Json)
+            }
+
+            if(response.status.isSuccess()) {
+                Log.i("RequestManager", "Feed caricato con successo.")
+                return response.body<List<Post>>()
+            } else {
+                Log.d("RequestManager", "Caricamento Feed fallito. Status code: ${response.status.value}")
+                return null
+            }
+        } catch (e: Exception) {
+            Log.d("RequestManager", "Errore durante il caricamento del Feed -> ${e.message}")
+            return null
+        }
+    }
+
+    suspend fun getFeedPostIds(
+        maxPostId: Int? = null,
+        limit: Int? = null
+    ): List<Int>? {
+        val FEED_ENDPOINT = BASE_URL + "feed"
+        val SID = dataStoreManager.getSID()
+        if(SID.isNullOrEmpty()) return null
+
+        try {
+            val response = httpClient.get(FEED_ENDPOINT) {
+                header("x-session-id", SID)
+
+                maxPostId?.let {
+                    parameter("maxPostId", it)
+                }
+
+                limit?.let {
+                    parameter("limit", it)
+                }
+            }
+
+            if(response.status.isSuccess()) {
+                Log.i("RequestManager", "Post IDs caricati con successo.")
+                return response.body<List<Int>>()
+            } else {
+                Log.d("RequestManager", "Caricamento Post IDs fallito. Status code: ${response.status.value}")
+                return null
+            }
+        } catch (e: Exception) {
+            Log.d("RequestManager", "Errore durante il caricamento dei Post IDs -> ${e.message}")
+            return null
+        }
+    }
+
+    suspend fun getPostByIdRequest(postId: Int): Post? {
+        val POST_BY_ID_ENDPOINT = BASE_URL + "post/$postId"
+        val SID = dataStoreManager.getSID()
+        if(SID.isNullOrEmpty()) return null
+
+        Log.i("RequestManager", "Caricamento Post ID: $postId in corso...")
+        try {
+            val response = httpClient.get(POST_BY_ID_ENDPOINT) {
+                header("x-session-id", SID)
+                accept(ContentType.Application.Json)
+            }
+
+            if(response.status.isSuccess()) {
+                Log.i("RequestManager", "Post ID: $postId caricato con successo.")
+                return response.body<Post>()
+            } else {
+                Log.d("RequestManager", "Caricamento Post ID: $postId fallito. Status code: ${response.status.value}")
+                return null
+            }
+        } catch (e: Exception) {
+            Log.d("RequestManager", "Errore durante il caricamento del Post ID: $postId -> ${e.message}")
+            return null
+        }
+    }
+
+    suspend fun getFeedPreviews(maxPostId: Int? = null): List<FeedPreview>? {
+        val FEED_ENDPOINT = BASE_URL + "feed"
+        val SID = dataStoreManager.getSID()
+        if(SID.isNullOrEmpty()) return null
+
+        try {
+            val response = httpClient.get(FEED_ENDPOINT) {
+                header("x-session-id", SID)
+
+                maxPostId?.let {
+                    parameter("maxPostId", it)
+                }
+                accept(ContentType.Application.Json)
+            }
+
+            if(response.status.isSuccess()) {
+                Log.i("RequestManager", "Feed Previews caricati con successo.")
+                return response.body<List<FeedPreview>>()
+            } else {
+                Log.d("RequestManager", "Caricamento Feed Previews fallito. Status code: ${response.status.value}")
+                return null
+            }
+        } catch (e: Exception) {
+            Log.d("RequestManager", "Errore durante il caricamento dei Feed Previews -> ${e.message}")
             return null
         }
     }
