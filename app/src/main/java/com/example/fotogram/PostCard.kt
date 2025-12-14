@@ -27,7 +27,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-
 @Composable
 fun PostCard(feedPostUI: FeedPostUI) {
     Card(
@@ -42,7 +41,6 @@ fun PostCard(feedPostUI: FeedPostUI) {
         }
     }
 }
-
 @Composable
 fun PostHeader(feedPostUI: FeedPostUI) {
     Row(
