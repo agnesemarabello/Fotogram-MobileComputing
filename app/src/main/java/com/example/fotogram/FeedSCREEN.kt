@@ -59,8 +59,8 @@ fun FeedScreen(
                 }
 
             }
-            items(posts) { post ->
-                PostCard(post = post)
+            items(posts) { feedPost ->
+                PostCard(feedPostUI = feedPost)
             }
 
             if(!isLoading && posts.isEmpty()) {

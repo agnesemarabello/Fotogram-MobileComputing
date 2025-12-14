@@ -72,7 +72,7 @@ data class PostLocation(
 @Serializable
 data class FeedPreview(
     val id: Int,
-    val areYouFollowingAuthor: Boolean,
+    val areYouFollowingAuthor: Boolean
 )
 @Serializable
 data class Post(
@@ -83,7 +83,15 @@ data class Post(
     val contentPicture: String,
 
     val contentText: String? = null, //assumo per ora che il testo sia opzionale
-    val location: PostLocation? = null, //idem
+    val location: PostLocation? = null //idem
+)
+
+@Serializable
+data class FeedPostUI(
+    val post: Post,
+    val authorUsername: String,
+    val authorProfilePicture: String? = null,
+    val isFollowingAuthor: Boolean
 )
 
 class RequestManager(private val dataStoreManager: DataStoreManager) {
@@ -151,6 +159,34 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
 
         } catch (e: Exception) {
             Log.d("RequestManager", "Errore durante l'aggiornamento del profilo -> ${e.message}")
+            return null
+        }
+    }
+
+    suspend fun getUserDetailsRequest(userId: Int): ProfileDetailsResponse? {
+        val USER_BY_ID_ENDPOINT = BASE_URL + "user/$userId"
+        val SID = dataStoreManager.getSID()
+
+        if(SID.isNullOrEmpty()) {
+            Log.d("RequestManager", "Impossibile ottenere i dettagli utente -> SID mancante.")
+            return null
+        }
+
+        Log.i("RequestManager", "Caricamento dettagli utente ID: $userId in corso...")
+        try {
+            val response = httpClient.get(USER_BY_ID_ENDPOINT) {
+                header("x-session-id", SID)
+                accept(ContentType.Application.Json)
+            }
+            if(response.status.isSuccess()) {
+                Log.i("RequestManager", "Dettagli utente ID: $userId caricati con successo.")
+                return response.body<ProfileDetailsResponse>()
+            } else {
+                Log.d("RequestManager", "Caricamento dettagli utente ID: $userId fallito. Status code: ${response.status.value}")
+                return null
+            }
+        } catch (e: Exception) {
+            Log.d("RequestManager", "Errore durante il caricamento dei dettagli utente ID: $userId -> ${e.message}")
             return null
         }
     }
@@ -276,4 +312,5 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
             return null
         }
     }
+
 }

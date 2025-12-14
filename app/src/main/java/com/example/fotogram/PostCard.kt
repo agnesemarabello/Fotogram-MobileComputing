@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -30,41 +29,66 @@ import java.util.Locale
 
 
 @Composable
-fun PostCard(post: Post) {
+fun PostCard(feedPostUI: FeedPostUI) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
     ) {
         Column {
-            PostHeader(post)
-            PostContentImage(post)
-            PostCaption(post)
+            PostHeader(feedPostUI = feedPostUI)
+            PostContentImage(post = feedPostUI.post)
+            PostCaption(post = feedPostUI.post)
         }
     }
 }
 
 @Composable
-fun PostHeader(post: Post) {
+fun PostHeader(feedPostUI: FeedPostUI) {
     Row(
         modifier = Modifier
             .fillMaxSize()
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Spacer(modifier = Modifier.width(8.dp))
-
+        val profileImageBitmap = feedPostUI.authorProfilePicture?.let { base64 ->
+            decodedBase64Image(base64)
+        }
         Box(
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
                 .background(Color.Gray)
         ) {
+            if(profileImageBitmap != null) {
+                Image(
+                    bitmap = profileImageBitmap,
+                    contentDescription = "Immagine di profilo di ${feedPostUI.authorUsername}",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            }
+        }
             Text(
-                text = "${post.authorId}",
+                text = "  ${feedPostUI.authorUsername}",
                 style = MaterialTheme.typography.titleMedium,
             )
-        }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            if(feedPostUI.isFollowingAuthor) {
+                Text(
+                    text = "Segui già",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Green
+                )
+            } else {
+                Text(
+                    text = "Non segui",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Red
+                )
+            }
     }
 }
 
