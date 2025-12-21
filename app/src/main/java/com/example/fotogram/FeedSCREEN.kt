@@ -1,10 +1,13 @@
 package com.example.fotogram
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
@@ -20,7 +23,14 @@ import androidx.compose.ui.unit.dp
 import io.ktor.websocket.Frame.Text
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedScreen(
     modifier: Modifier = Modifier,
@@ -30,8 +40,12 @@ fun FeedScreen(
     )
 ) {
 
+    val isRefreshing by viewModel.isLoading.collectAsState()
     val posts by viewModel.posts.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val scope = rememberCoroutineScope()
+
+    val listState = rememberLazyListState()
 
     Scaffold(
         modifier = modifier
@@ -40,20 +54,41 @@ fun FeedScreen(
         bottomBar = {
             NavigationBar(
                 currentSelectedScreen = Screen.FEED,
-                onFeedClick = { onNavigate(Screen.FEED) },
+                onFeedClick = {
+                    viewModel.refreshFeed()
+                    scope.launch {
+                       try {
+                           listState.animateScrollToItem(0)
+                       } catch (e: Exception) {
+                           Log.i("FeedScreen", "Errore durante lo scroll al primo elemento: ${e.localizedMessage}")
+                       }
+                    }
+
+                },
                 onProfileClick = { onNavigate(Screen.PROFILE) }
             )
         }
     ) { paddingValues ->
+
+        PullToRefreshBox(
+            isRefreshing = isLoading && posts.isNotEmpty(), //Mostra l'indicatore di refresh solo se non è il caricamento iniziale
+            onRefresh = { viewModel.refreshFeed() },
+            modifier = Modifier.padding(paddingValues = PaddingValues())
+        ) {
+
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
         ) {
-            if(isLoading && posts.isEmpty()) {
+            if (isLoading && posts.isEmpty()) {
                 item {
-                    Box(modifier = Modifier.fillParentMaxSize(), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier.fillParentMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
                         CircularProgressIndicator()
                     }
                 }
@@ -63,11 +98,37 @@ fun FeedScreen(
                 PostCard(feedPostUI = feedPost)
             }
 
-            if(!isLoading && posts.isEmpty()) {
+            if (posts.isNotEmpty()) {
                 item {
-                    Text("Nessun post da mostrare.")
+                    LaunchedEffect(posts.size) {
+                        viewModel.loadFeed()
+                    }
+                    if(isLoading) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(modifier = Modifier.size(32.dp))
+                        }
+                    }
                 }
             }
+            if(!isLoading && posts.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier.fillParentMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        androidx.compose.material3.Text(
+                            text = "Nessun post disponibile. Segui altri utenti per vedere i loro post nel feed.",
+                            color = Color.White
+                        )
+                    }
+                }
+            }
+        }
         }
     }
 }

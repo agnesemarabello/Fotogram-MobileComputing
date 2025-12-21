@@ -53,7 +53,7 @@ data class ProfileDetailsResponse(
     val id: Int,
     val username: String,
     val bio: String,
-    val dateOfBirth: String,
+    val dateOfBirth: String? = null,
     val profilePicture: String? = null, //da modificare più avanti perchè l'immagine è obligatoria
     val isYourFollower: Boolean,
     val isYourFollowing: Boolean,
@@ -65,8 +65,8 @@ data class ProfileDetailsResponse(
 
 @Serializable
 data class PostLocation(
-    val latitude: Double,
-    val longitude: Double
+    val latitude: Double?,
+    val longitude: Double?
 )
 
 @Serializable
@@ -83,7 +83,8 @@ data class Post(
     val contentPicture: String,
 
     val contentText: String? = null, //assumo per ora che il testo sia opzionale
-    val location: PostLocation? = null //idem
+    val location: PostLocation? = null, //idem
+
 )
 
 @Serializable
@@ -91,7 +92,6 @@ data class FeedPostUI(
     val post: Post,
     val authorUsername: String,
     val authorProfilePicture: String? = null,
-    val isFollowingAuthor: Boolean
 )
 
 class RequestManager(private val dataStoreManager: DataStoreManager) {
@@ -192,8 +192,10 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
     }
 
     suspend fun getFeedRequest(
-        startPostId: String? = null
-    ): List<Post>? {
+        maxPostId: Int? = null,
+        limit: Int? = 10,
+        seed: Int? = null
+    ): List<Int>? {
         val FEED_ENDPOINT = BASE_URL + "feed"
         val SID = dataStoreManager.getSID()
         if(SID.isNullOrEmpty()) {
@@ -201,21 +203,30 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
             return null
         }
 
-        Log.i("RequestManager", "Caricamento Feed in corso... (Start Post ID: $startPostId)")
+        Log.i("RequestManager", "Caricamento Feed in corso...")
         try {
             val response = httpClient.get(FEED_ENDPOINT) {
                 header("x-session-id", SID)
 
-                startPostId?.let {
-                    parameter("startPostId", it)
+                maxPostId?.let {
+                    parameter("maxPostId", it)
                 }
 
+                limit?.let {
+                    parameter("limit", it)
+                }
+
+                seed?.let {
+                    parameter("limit", it)
+                }
                 accept(ContentType.Application.Json)
             }
 
             if(response.status.isSuccess()) {
                 Log.i("RequestManager", "Feed caricato con successo.")
-                return response.body<List<Post>>()
+                val ids = response.body<List<Int>>()
+                Log.i("RequestManager", "Feed Post IDs: $ids")
+                return ids
             } else {
                 Log.d("RequestManager", "Caricamento Feed fallito. Status code: ${response.status.value}")
                 return null

@@ -74,7 +74,7 @@ fun PostHeader(feedPostUI: FeedPostUI) {
 
             Spacer(modifier = Modifier.weight(1f))
 
-            if(feedPostUI.isFollowingAuthor) {
+           /*if(feedPostUI.isFollowingAuthor) {
                 Text(
                     text = "Segui già",
                     style = MaterialTheme.typography.bodySmall,
@@ -86,7 +86,7 @@ fun PostHeader(feedPostUI: FeedPostUI) {
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Red
                 )
-            }
+            }*/
     }
 }
 

@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
 
 enum class Screen {
@@ -16,7 +17,7 @@ enum class Screen {
 }
 @Composable
 fun AppNavigator(dataStoreManager: DataStoreManager) {
-    var currentScreen by remember {mutableStateOf(Screen.FEED)}
+    var currentScreen by remember {mutableStateOf<Screen?>(null)}
     var isLoading by remember { mutableStateOf(true) }
 
     val requestManager = remember { RequestManager(dataStoreManager) }
@@ -56,7 +57,9 @@ fun AppNavigator(dataStoreManager: DataStoreManager) {
 
         currentScreen == Screen.FEED -> {
             FeedScreen(
-                onNavigate = { screen -> currentScreen = screen }
+                onNavigate = { screen ->
+                        currentScreen = screen
+                }
             )
         }
 
