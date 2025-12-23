@@ -1,5 +1,6 @@
 package com.example.fotogram
 
+import android.util.Log
 import androidx.compose.runtime.Recomposer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -24,9 +25,13 @@ class ProfileViewModel(private val requestManager: RequestManager, private val d
         viewModelScope.launch {
             _isLoading.value = true
             val uid = dataStoreManager.getUID()
+            Log.d("ProfileViewModel", "UID recuperato: $uid")
             if (uid != null) {
                 val details = requestManager.getUserDetailsRequest(uid)
+                Log.d("ProfileViewModel", "Dettagli profilo caricati: $details")
                 _profileData.value = details
+            } else {
+                Log.e("ProfileViewModel", "UID è null, impossibile caricare i dettagli del profilo")
             }
             _isLoading.value = false
         }

@@ -6,11 +6,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -34,6 +37,16 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.ui.graphics.Color.Companion.White
 
 @Composable
 fun ProfileScreen(
@@ -48,28 +61,33 @@ fun ProfileScreen(
     Scaffold(
         modifier = modifier
             .statusBarsPadding()
-            .background(Color(0xFF1A95BB)),
+            .background(Color.Transparent),
         bottomBar = { NavigationBar (
-            currentSelectedScreen = Screen.FEED,
+            currentSelectedScreen = Screen.PROFILE,
             onFeedClick = { onNavigate(Screen.FEED) },
             onProfileClick = { viewModel.loadUserProfile() }
         ) }
     ) { paddingValues ->
-        Box(
+        Column (
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color(0xFF1A95BB)),
-            contentAlignment = Alignment.TopCenter
+                .background(Color.White),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if(isLoading && profile == null) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
             } else {
                 profile?.let { data ->
                     Column(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
+                            .fillMaxWidth()
+                            .padding(top = 32.dp, bottom = 16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         val bitmap = data.profilePicture?.let { decodedBase64Image(it) }
@@ -87,12 +105,37 @@ fun ProfileScreen(
                                     modifier = Modifier.fillMaxSize(),
                                     contentScale = ContentScale.Crop
                                 )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Filled.Person,
+                                    contentDescription = "Immagine profilo predefinita",
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(20.dp),
+                                    tint = Color.White
+                                )
                             }
                         }
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        Text(text = "${data.username}", style = MaterialTheme.typography.headlineSmall)
-                        Text(text = data.bio ?: "Nessuna bio disponibile", style = MaterialTheme.typography.bodyMedium, color = Color.DarkGray)
+                        if(data.username == null) {
+                            Text(
+                                text = "Username",
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Bold
+                            )
+                        } else {
+                            Text(
+                                text = "${data.username}",
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        Text(
+                            text = data.bio ?: "Nessuna bio disponibile",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.DarkGray
+                        )
 
                         Spacer(modifier = Modifier.height(24.dp))
 
@@ -108,90 +151,6 @@ fun ProfileScreen(
 
                 }
             }
-/*
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
-            ) {
-                item {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth(0.9f)
-                            .fillMaxHeight(0.4f)
-                            .background(
-                                Color(0xFFF5F5F5),
-                                shape = RoundedCornerShape(16.dp)
-                            )
-                            .padding(20.dp),
-
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "Benvenuto in Fotogram!",
-                            style = MaterialTheme.typography.headlineMedium
-                        )
-                        Spacer(modifier = Modifier.height(60.dp))
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 5.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-
-                            Box(
-                                modifier = Modifier
-                                    .size(80.dp)
-                                    .align(Alignment.CenterVertically),
-                                contentAlignment = Alignment.TopStart
-                            ) {
-                                Button(
-                                    onClick = {},
-                                    shape = CircleShape,
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.primary,
-                                        contentColor = White
-                                    ),
-                                    modifier = Modifier
-                                        .size(70.dp)
-                                        .align(Alignment.TopStart)
-                                ) {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-
-                                        Icon(
-                                            imageVector = Icons.Filled.Person,
-                                            contentDescription = "Seleziona immagine profilo",
-                                            modifier = Modifier.fillMaxSize()
-                                        )
-                                        Box(
-                                            modifier = Modifier
-                                                .align(Alignment.BottomEnd)
-                                                .offset(x = 20.dp, y = 10.dp)
-                                                .size(24.dp)
-                                                .clip(CircleShape)
-                                                .background(Color(0xFF90CAF9)),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Icon(
-                                                imageVector = if (imgBase64 == "") Icons.Filled.Add else Icons.Filled.Check,
-                                                contentDescription = "Stato selezione immagine",
-                                                modifier = Modifier.size(20.dp)
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(16.dp))
-                    }
-                }
-            }*/
         }
     }
 }
