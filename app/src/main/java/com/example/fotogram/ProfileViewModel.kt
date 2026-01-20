@@ -49,4 +49,5 @@ class ProfileViewModel(private val requestManager: RequestManager, private val d
             _isLoading.value = false
         }
     }
+
 }

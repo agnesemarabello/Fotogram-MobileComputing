@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.Image
+import androidx.compose.runtime.remember
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -92,7 +93,9 @@ fun PostHeader(feedPostUI: FeedPostUI) {
 
 @Composable
 fun PostContentImage(post: Post) {
-    val imageBitmap = decodedBase64Image(post.contentPicture)
+    val imageBitmap = remember(post.contentPicture) {
+        decodedBase64Image(post.contentPicture)
+    }
     if (imageBitmap != null) {
         Image(
             bitmap = imageBitmap,
