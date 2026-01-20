@@ -2,7 +2,9 @@ package com.example.fotogram
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,10 +25,17 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.setValue
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,8 +52,9 @@ fun FeedScreen(
     val posts by viewModel.posts.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val scope = rememberCoroutineScope()
-
     val listState = rememberLazyListState()
+
+    var selectedPost by remember { mutableStateOf<FeedPostUI?>(null) }
 
     Scaffold(
         modifier = modifier
@@ -94,7 +104,11 @@ fun FeedScreen(
 
             }
             items(posts) { feedPost ->
-                PostCard(feedPostUI = feedPost)
+                Box(
+                    modifier = Modifier.clickable { selectedPost = feedPost }
+                ) {
+                    PostCard(feedPostUI = feedPost)
+                }
             }
 
             if (posts.isNotEmpty()) {
@@ -128,6 +142,40 @@ fun FeedScreen(
                 }
             }
         }
+        }
+    }
+    selectedPost?.let { feedPostUI ->
+        Dialog(
+            onDismissRequest = { selectedPost = null },
+            properties = DialogProperties(
+                usePlatformDefaultWidth = false,
+                dismissOnBackPress = true,
+                dismissOnClickOutside = true
+            )
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable { selectedPost = null},
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.95f)
+                        .clickable(enabled = false) {}
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        PostCard(
+                            feedPostUI = feedPostUI,
+                            isFullScreen = true
+                        )
+                    }
+                }
+            }
         }
     }
 }

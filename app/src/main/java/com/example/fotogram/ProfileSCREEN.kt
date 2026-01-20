@@ -40,6 +40,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.mutableStateOf
@@ -138,10 +140,10 @@ fun ProfileScreen(
 
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
                     .background(Color.Transparent)
                     .clickable { selectedPost = null }
-                    .padding(16.dp),
+                    .padding(1.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Box(
@@ -149,13 +151,21 @@ fun ProfileScreen(
                         .fillMaxWidth(0.95f)
                         .clickable(enabled = false) {}
                 ) {
-                    PostCard(
-                        feedPostUI = FeedPostUI(
-                            post = post,
-                            authorUsername = profile?.username,
-                            authorProfilePicture = profile?.profilePicture
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState())
+                            .clickable(enabled = false) {}
+                    ) {
+                        PostCard(
+                            feedPostUI = FeedPostUI(
+                                post = post,
+                                authorUsername = profile?.username,
+                                authorProfilePicture = profile?.profilePicture
+                            ),
+                            isFullScreen = true
                         )
-                    )
+                    }
                 }
             }
         }

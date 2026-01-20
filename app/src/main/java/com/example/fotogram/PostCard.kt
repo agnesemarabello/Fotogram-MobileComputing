@@ -22,6 +22,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.runtime.remember
 import java.time.Instant
 import java.time.ZoneId
@@ -29,7 +31,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @Composable
-fun PostCard(feedPostUI: FeedPostUI) {
+fun PostCard(feedPostUI: FeedPostUI, isFullScreen: Boolean = false) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -37,7 +39,7 @@ fun PostCard(feedPostUI: FeedPostUI) {
     ) {
         Column {
             PostHeader(feedPostUI = feedPostUI)
-            PostContentImage(post = feedPostUI.post)
+            PostContentImage(post = feedPostUI.post, isFullScreen = isFullScreen)
             PostCaption(post = feedPostUI.post)
         }
     }
@@ -92,17 +94,20 @@ fun PostHeader(feedPostUI: FeedPostUI) {
 }
 
 @Composable
-fun PostContentImage(post: Post) {
+fun PostContentImage(post: Post, isFullScreen: Boolean) {
     val imageBitmap = remember(post.contentPicture) {
         decodedBase64Image(post.contentPicture)
     }
+
+    val imageHeight = if (isFullScreen) 500.dp else 400.dp
+
     if (imageBitmap != null) {
         Image(
             bitmap = imageBitmap,
             contentDescription = post.contentText ?: "Immagine del post",
             modifier = Modifier
                 .fillMaxWidth()
-                .height(400.dp),
+                .requiredHeight(imageHeight),
             contentScale = ContentScale.Crop
         )
     }
