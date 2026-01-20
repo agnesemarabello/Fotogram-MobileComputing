@@ -157,8 +157,8 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
     }
 
     suspend fun updateProfileRequest(
-        newUsername: String?,
-        newBio: String?,
+        newUsername: String,
+        newBio: String,
         newDateOfBirth: String?
     ): ProfileDetailsResponse? {
 
