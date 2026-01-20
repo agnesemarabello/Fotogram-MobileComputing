@@ -164,6 +164,33 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
         }
     }
 
+    suspend fun CreatePostRequest() {
+        val CREATE_POST_ENDPOINT = BASE_URL + "post"
+        val SID = dataStoreManager.getSID()
+
+        if(SID.isNullOrEmpty()) {
+            Log.d("RequestManager", "Impossibile creare il post -> SID mancante.")
+            return
+        }
+
+        Log.i("RequestManager", "Creazione post in corso...")
+
+        try {
+            val response = httpClient.post(CREATE_POST_ENDPOINT) {
+                header("x-session-id", SID)
+                accept(ContentType.Application.Json)
+            }
+
+            if(response.status.isSuccess()) {
+                Log.i("RequestManager", "Post creato con successo.")
+            } else {
+                Log.d("RequestManager", "Creazione post fallita. Status code: ${response.status.value}")
+            }
+        } catch (e: Exception) {
+            Log.d("RequestManager", "Errore durante la creazione del post -> ${e.message}")
+        }
+    }
+
     suspend fun getUserDetailsRequest(userId: Int): ProfileDetailsResponse? {
         val USER_BY_ID_ENDPOINT = BASE_URL + "user/$userId"
         val SID = dataStoreManager.getSID()
@@ -188,6 +215,64 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
             }
         } catch (e: Exception) {
             Log.d("RequestManager", "Errore durante il caricamento dei dettagli utente ID: $userId -> ${e.message}")
+            return null
+        }
+    }
+
+    suspend fun getSinglePost(postId: Int): Post? {
+        val SINGLE_POST_ENDPOINT = BASE_URL + "/post/$postId"
+        val SID = dataStoreManager.getSID()
+
+        if(SID.isNullOrEmpty()) {
+            Log.d("RequestManager", "Impossibile ottenere il post -> SID mancante.")
+            return null
+        }
+        Log.i("RequestManager", "Caricamento post ID: $postId in corso...")
+        try {
+            val response = httpClient.get(SINGLE_POST_ENDPOINT) {
+                header("x-session-id", SID)
+                accept(ContentType.Application.Json)
+            }
+            if(response.status.isSuccess()) {
+                Log.i("RequestManager", "Post ID: $postId caricato con successo.")
+                return response.body<Post>()
+            } else {
+                Log.d("RequestManager", "Caricamento post ID: $postId fallito. Status code: ${response.status.value}")
+                return null
+            }
+        } catch (e : Exception) {
+            Log.d("RequestManager", "Errore durante il caricamento del post ID: $postId -> ${e.message}")
+            return null
+        }
+    }
+
+    suspend fun getUserPostsRequest(authorId: Int): List<Int>? {
+        val USER_POSTS_ENDPOINT = BASE_URL + "post/list/$authorId"
+        val SID = dataStoreManager.getSID()
+        if(SID.isNullOrEmpty()) {
+            Log.d("RequestManager", "Impossibile ottenere i post utente -> SID mancante.")
+            return null
+        }
+        Log.i("RequestManager", "Caricamento post author ID: $authorId in corso...")
+        try {
+            val response = httpClient.get(USER_POSTS_ENDPOINT) {
+                header("x-session-id", SID)
+                accept(ContentType.Application.Json)
+            }
+            if(response.status.isSuccess()) {
+                Log.i("RequestManager", "Post author ID: $authorId caricati con successo.")
+
+                val postIds = response.body<List<Int>>()
+                if(postIds.isEmpty()) {
+                    Log.i("RequestManager", "Nessun post trovato per l'author ID: $authorId")
+                }
+                return postIds
+            } else {
+                Log.d("RequestManager", "Caricamento post author ID: $authorId fallito. Status code: ${response.status.value}")
+                return null
+            }
+        } catch (e : Exception) {
+            Log.d("RequestManager", "Errore durante il caricamento dei post author ID: $authorId -> ${e.message}")
             return null
         }
     }
