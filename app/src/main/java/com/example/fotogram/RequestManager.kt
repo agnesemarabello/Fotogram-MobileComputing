@@ -45,7 +45,7 @@ data class UserRegistrationResponse(
 data class UpdateProfileRequest(
     val username: String,
     val bio: String = "",
-    val dateOfBirth: String? = null
+    val dateOfBirth: String = ""
 )
 
 @Serializable
@@ -56,10 +56,10 @@ data class UpdateProfilePictureRequest(
 @Serializable
 data class ProfileDetailsResponse(
     val id: Int,
-    val username: String?,
-    val bio: String?,
-    val dateOfBirth: String? = null,
-    val profilePicture: String? = null,
+    val username: String,
+    val bio: String? = "",
+    val dateOfBirth: String? = "",
+    val profilePicture: String,
     val isYourFollower: Boolean,
     val isYourFollowing: Boolean,
     val followersCount: Int,
@@ -181,7 +181,7 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
         val requestBody = UpdateProfileRequest(
             username = usernameOK,
             bio = newBio ?: "",
-            dateOfBirth = newDateOfBirth
+            dateOfBirth = newDateOfBirth ?: ""
         )
 
         Log.i("RequestManager", "Aggiornamento profilo in corso...")

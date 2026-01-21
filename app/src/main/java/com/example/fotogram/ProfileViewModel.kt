@@ -49,5 +49,14 @@ class ProfileViewModel(private val requestManager: RequestManager, private val d
             _isLoading.value = false
         }
     }
+    fun updateProfileDetails(username: String, bio: String, dateOfBirth: String, base64img: String?) {
+        viewModelScope.launch {
+            requestManager.updateProfileRequest(username, bio, dateOfBirth)
+            if(base64img != null) {
+                requestManager.updateProfilePictureRequest(base64img)
+            }
+            loadUserProfile()
+        }
+    }
 
 }
