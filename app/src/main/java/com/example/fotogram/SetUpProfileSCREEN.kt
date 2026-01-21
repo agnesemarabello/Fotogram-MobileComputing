@@ -2,7 +2,6 @@ package com.example.fotogram
 
 import android.net.Uri
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -19,6 +18,6 @@ fun SetUpProfileScreen(
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var base64img by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
-    
+
 
 }
