@@ -32,7 +32,7 @@ fun NavigationBar(
             NavigationBarItem(
                 selected = currentSelectedScreen == Screen.FEED,
                 icon = { Icon(
-                    Icons.Filled.Home,
+                    imageVector = Icons.Filled.Home,
                     contentDescription = "Feed",
                     modifier = Modifier.size(32.dp)) },
                 label = {Text("Feed")},
@@ -47,10 +47,13 @@ fun NavigationBar(
             NavigationBarItem(
                 selected = currentSelectedScreen == Screen.PROFILE,
                 icon = { Icon(
-                    Icons.Filled.Person,
+                    imageVector = Icons.Filled.Person,
                     contentDescription = "Profile",
                     modifier = Modifier.size(32.dp)) },
                 label = { Text("Profile") },
+                colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = Color.Transparent
+                ),
                 onClick = {
                     onProfileClick()
                     Log.d("NavigationBar", "Caricato Profile Screen")

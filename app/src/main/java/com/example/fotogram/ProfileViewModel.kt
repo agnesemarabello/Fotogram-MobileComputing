@@ -58,5 +58,13 @@ class ProfileViewModel(private val requestManager: RequestManager, private val d
             loadUserProfile()
         }
     }
+    fun createNewPost(img: String, description: String) {
+        viewModelScope.launch {
+            val success = requestManager.CreatePostRequest(description, img, null, null)
+            if(success) {
+                loadUserProfile()
+            }
+        }
+    }
 
 }

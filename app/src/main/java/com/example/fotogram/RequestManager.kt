@@ -66,13 +66,6 @@ data class ProfileDetailsResponse(
     val followingCount: Int,
     val postsCount: Int
 )
-
-@Serializable
-data class PostLocation(
-    val latitude: Double?,
-    val longitude: Double?
-)
-
 @Serializable
 data class FeedPreview(
     val id: Int,
@@ -89,6 +82,18 @@ data class Post(
     val contentText: String? = null, //assumo per ora che il testo sia opzionale
     val location: PostLocation? = null, //idem
 
+)
+
+@Serializable
+data class CreatePostRequest(
+    val contentText: String? = null,
+    val contentPicture: String,
+    val location: PostLocation? = null
+)
+@Serializable
+data class PostLocation(
+    val latitude: Double?,
+    val longitude: Double?
 )
 
 @Serializable
@@ -208,30 +213,56 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
         }
     }
 
-    suspend fun CreatePostRequest() {
+    suspend fun CreatePostRequest(
+        text: String?,
+        base64img: String,
+        lat: Double?,
+        lon: Double?
+    ): Boolean {
         val CREATE_POST_ENDPOINT = BASE_URL + "post"
         val SID = dataStoreManager.getSID()
 
         if(SID.isNullOrEmpty()) {
             Log.d("RequestManager", "Impossibile creare il post -> SID mancante.")
-            return
+            return false
         }
+
+        if(base64img.length > 80000) {
+            Log.e("RequestManager", "Immagine troppo grande")
+            return false
+        }
+
+        val requestBody = CreatePostRequest(
+            contentText = if(text.isNullOrBlank()) null else text,
+            contentPicture = base64img,
+            location = if(lat != null && lon != null) {
+                PostLocation(
+                    latitude = lat,
+                    longitude = lon
+                )
+            } else null
+
+        )
 
         Log.i("RequestManager", "Creazione post in corso...")
 
-        try {
+        return try {
             val response = httpClient.post(CREATE_POST_ENDPOINT) {
                 header("x-session-id", SID)
-                accept(ContentType.Application.Json)
+                contentType(ContentType.Application.Json)
+                setBody(requestBody)
             }
 
             if(response.status.isSuccess()) {
                 Log.i("RequestManager", "Post creato con successo.")
+                true
             } else {
                 Log.d("RequestManager", "Creazione post fallita. Status code: ${response.status.value}")
+                false
             }
         } catch (e: Exception) {
             Log.d("RequestManager", "Errore durante la creazione del post -> ${e.message}")
+            false
         }
     }
 
