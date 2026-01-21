@@ -22,7 +22,10 @@ class SetUpProfileViewModel(
             _isLoading.value = true
             val regResponse = requestManager.registrationRequest()
             if (regResponse != null) {
-                dataStoreManager.saveSession(regResponse.sessionId, regResponse.userId)
+                val sid = regResponse.sessionId
+                val uid = regResponse.userId
+
+                dataStoreManager.saveSession(sid, uid)
                 requestManager.updateProfileRequest(newUsername = username, newBio = "", newDateOfBirth = null)
                 if(!base64img.isNullOrEmpty()) {
                     requestManager.updateProfilePictureRequest(base64img)

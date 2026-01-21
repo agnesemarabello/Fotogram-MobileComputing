@@ -12,6 +12,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
 
 enum class Screen {
+    SETUP,
     FEED,
     PROFILE
 }
@@ -26,33 +27,33 @@ fun AppNavigator(dataStoreManager: DataStoreManager) {
     LaunchedEffect(Unit) {
         delay(3000)
 
-        val sid = dataStoreManager.getSID()
+        val sid = try {
+            dataStoreManager.getSID()
+        } catch (e: Exception) {
+            Log.e("AppNavigator", "Errore nel recupero del SID: ${e.message}")
+            null
+        }
         if (sid != null && sid.isNotEmpty()) {
             currentScreen = Screen.FEED
             Log.i("AppNavigator", "SID Esistente: $sid -> Mostra FEED")
         } else {
-            Log.d("AppNavigator", "SID mancante -> Avvio registrazione implicita")
-
-            val response = requestManager.registrationRequest()
-
-            response?.let { regResponse ->
-                val SID = regResponse.sessionId
-                val UID = regResponse.userId
-
-                dataStoreManager.saveSession(SID, UID)
-                Log.i("AppNavigator", "Registrazione completata -> SID: $SID, UID: $UID")
-                currentScreen = Screen.PROFILE
-            } ?: run {
-                Log.e("AppNavigator", "Registrazione fallita")
-                currentScreen = Screen.PROFILE
-            }
+            currentScreen = Screen.SETUP
+            Log.d("AppNavigator", "SID mancante -> Avvio SETUP")
         }
 
         isLoading = false
     }
     when {
-        isLoading -> {
+        isLoading || currentScreen == null -> {
             LoadingScreen()
+        }
+
+        currentScreen == Screen.SETUP -> {
+            SetUpProfileScreen(
+                onRegistrationComplete = {
+                    currentScreen = Screen.FEED
+                }
+            )
         }
 
         currentScreen == Screen.FEED -> {
@@ -67,9 +68,6 @@ fun AppNavigator(dataStoreManager: DataStoreManager) {
             ProfileScreen(
                 onNavigate = { screen -> currentScreen = screen }
             )
-        }
-        else -> {
-            LoadingScreen()
         }
     }
 }

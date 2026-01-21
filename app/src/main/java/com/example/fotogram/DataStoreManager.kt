@@ -6,15 +6,17 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 
 
 private val Context.dataStore by preferencesDataStore(name = "settings")
 
-val SID = stringPreferencesKey("sessionId")
-val UID = intPreferencesKey("userId")
 
 class DataStoreManager(private val context: Context) {
     val dataStore = context.dataStore
+    private val SID = stringPreferencesKey("sessionId")
+    private val UID = intPreferencesKey("userId")
 
     suspend fun saveSession(sessionId: String, userId: Int) {
         dataStore.edit { preferences ->
@@ -24,14 +26,17 @@ class DataStoreManager(private val context: Context) {
     }
 
     suspend fun getSID(): String? {
-        val prefs = dataStore.data.first()
-        return if(SID != null) {prefs[SID]} else null
+        return dataStore.data.map { preferences ->
+            preferences[SID]
+        }.firstOrNull()
     }
 
     suspend fun getUID(): Int? {
-        val prefs = dataStore.data.first()
-        return if(UID != null) {prefs[UID]} else null
+        return dataStore.data.map { preferences ->
+            preferences[UID]
+        }.firstOrNull()
     }
+
 }
 
 data class SessionData(

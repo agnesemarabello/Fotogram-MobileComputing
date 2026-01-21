@@ -43,9 +43,9 @@ data class UserRegistrationResponse(
 
 @Serializable
 data class UpdateProfileRequest(
-    val username: String?,
-    val bio: String?,
-    val dateOfBirth: String?
+    val username: String,
+    val bio: String = "",
+    val dateOfBirth: String? = null
 )
 
 @Serializable
@@ -59,7 +59,7 @@ data class ProfileDetailsResponse(
     val username: String?,
     val bio: String?,
     val dateOfBirth: String? = null,
-    val profilePicture: String,
+    val profilePicture: String? = null,
     val isYourFollower: Boolean,
     val isYourFollowing: Boolean,
     val followersCount: Int,
@@ -132,6 +132,11 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
             Log.d("RequestManager", "Impossibile aggiornare l'immagine del profilo -> SID mancante.")
             return null
         }
+
+        if(newImgBase64.length > 80000) {
+            Log.e("RequestManager", "Immagine troppo grande")
+            return null
+        }
         val requestBody = UpdateProfilePictureRequest(
             base64 = newImgBase64
         )
@@ -158,7 +163,7 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
 
     suspend fun updateProfileRequest(
         newUsername: String,
-        newBio: String,
+        newBio: String?,
         newDateOfBirth: String?
     ): ProfileDetailsResponse? {
 
@@ -171,9 +176,11 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
             return null
         }
 
+        val usernameOK = if(newUsername.length > 15) newUsername.take(15) else newUsername
+
         val requestBody = UpdateProfileRequest(
-            username = newUsername,
-            bio = newBio,
+            username = usernameOK,
+            bio = newBio ?: "",
             dateOfBirth = newDateOfBirth
         )
 
