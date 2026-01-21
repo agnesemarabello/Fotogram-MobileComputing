@@ -6,6 +6,7 @@ import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.accept
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
@@ -291,6 +292,64 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
         } catch (e: Exception) {
             Log.d("RequestManager", "Errore durante il caricamento dei dettagli utente ID: $userId -> ${e.message}")
             return null
+        }
+    }
+
+    suspend fun followUserRequest(targetId: Int): Boolean {
+        val FOLLOW_USER_ENDPOINT = BASE_URL + "/follow/$targetId"
+        val SID = dataStoreManager.getSID()
+
+        if(SID.isNullOrEmpty()) {
+            Log.d("RequestManager", "Impossibile seguire l'utente -> SID mancante.")
+            return false
+        }
+
+        Log.i("RequestManager", "Richiesta di follow per l'utente ID: $targetId in corso...")
+        try {
+            val response = httpClient.put(FOLLOW_USER_ENDPOINT) {
+                header("x-session-id", SID)
+                accept(ContentType.Application.Json)
+            }
+            if(response.status.isSuccess()){
+                Log.i("RequestManager", "Richiesta di follow l'utente $targetId avvenuta con successo.")
+                return true
+            } else {
+                Log.d("RequestManager", "Richiesta di follow l'utente ID: $targetId fallita. Status code: ${response.status.value}")
+                return false
+            }
+
+        } catch (e: Exception) {
+            Log.d("RequestManager", "Errore durante la richiesta di follow per l'utente ID: $targetId -> ${e.message}")
+            return false
+        }
+    }
+
+    suspend fun deletefollowUserRequest(targetId: Int): Boolean {
+        val UNFOLLOW_USER_ENDPOINT = BASE_URL + "/follow/$targetId"
+        val SID = dataStoreManager.getSID()
+
+        if(SID.isNullOrEmpty()) {
+            Log.d("RequestManager", "Impossibile smettere di seguire l'utente -> SID mancante.")
+            return false
+        }
+
+        Log.i("RequestManager", "Richiesta di annullamento follow per l'utente ID: $targetId in corso...")
+        try {
+            val response = httpClient.delete(UNFOLLOW_USER_ENDPOINT) {
+                header("x-session-id", SID)
+                accept(ContentType.Application.Json)
+            }
+            if(response.status.isSuccess()){
+                Log.i("RequestManager", "Richiesta di unfollow l'utente $targetId avvenuta con successo.")
+                return true
+            } else {
+                Log.d("RequestManager", "Richiesta di unfollow l'utente ID: $targetId fallita. Status code: ${response.status.value}")
+                return false
+            }
+
+        } catch (e: Exception) {
+            Log.d("RequestManager", "Errore durante la richiesta di unfollow per l'utente ID: $targetId -> ${e.message}")
+            return false
         }
     }
 
