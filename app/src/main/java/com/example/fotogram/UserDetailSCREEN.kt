@@ -1,5 +1,6 @@
 package com.example.fotogram
 
+import android.graphics.drawable.Icon
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,14 +19,23 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -42,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserDetailScreen(
     userId: Int,
@@ -59,6 +70,23 @@ fun UserDetailScreen(
     }
 
     Scaffold(
+    /*    topBar = {
+            TopAppBar(
+                title = { },
+                navigationIcon = {
+                    IconButton(onClick = { onNavigate(Screen.FEED)}) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Torna indietro",
+                            tint = Color.Black
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent
+                )
+            )
+        },*/
         bottomBar = {
             NavigationBar (
                 currentSelectedScreen = Screen.USER_DETAIL,
@@ -76,61 +104,91 @@ fun UserDetailScreen(
                 CircularProgressIndicator()
             }
         } else {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues),
-                contentPadding = PaddingValues(bottom = 16.dp)
+                    .padding(paddingValues)
             ) {
-                item(span = { GridItemSpan(3) }) {
-                    data?.let { user ->
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            ProfileHeaderContent(user)
-                            Button(
-                                onClick = {viewModel.toggleFollow(user.id, user.isYourFollowing)},
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = 16.dp)
+                ) {
+                    item(span = { GridItemSpan(3) }) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 4.dp)
+                        ) {
+                            IconButton(
+                                onClick = { onNavigate(Screen.FEED) },
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 32.dp, vertical = 8.dp),
-                                shape = RoundedCornerShape(8.dp),
-                                colors = if(user.isYourFollowing)
-                                    ButtonDefaults.outlinedButtonColors()
-                                else
-                                    ButtonDefaults.buttonColors()
+                                    .padding(8.dp)
+                                    .align(Alignment.TopStart)
                             ) {
-                                Text(if(user.isYourFollowing) "Smetti di seguire" else "Segui")
+                                Icon(
+                                    imageVector = Icons.Default.ArrowBack,
+                                    contentDescription = "Torna indietro",
+                                    tint = Color.Black
+                                )
                             }
-
-                            Spacer(modifier = Modifier.height(16.dp))
-                            HorizontalDivider(
-                                modifier = Modifier.padding(horizontal = 16.dp),
-                                thickness = 0.5.dp,
-                                color = Color.LightGray
-                            )
                         }
                     }
-                }
+                    item(span = { GridItemSpan(3) }) {
+                        data?.let { user ->
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                ProfileHeaderContent(user)
+                                Button(
+                                    onClick = {
+                                        viewModel.toggleFollow(
+                                            user.id,
+                                            user.isYourFollowing
+                                        )
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 32.dp, vertical = 8.dp),
+                                    shape = RoundedCornerShape(8.dp),
+                                    colors = if (user.isYourFollowing)
+                                        ButtonDefaults.outlinedButtonColors()
+                                    else
+                                        ButtonDefaults.buttonColors()
+                                ) {
+                                    Text(if (user.isYourFollowing) "Smetti di seguire" else "Segui")
+                                }
 
-                items(posts) { post ->
-                    val bitmap = remember(post.contentPicture) {
-                        decodedBase64Image(post.contentPicture)
-                    }
-                    Box(
-                        modifier = Modifier
-                            .aspectRatio(1f)
-                            .padding(1.dp)
-                            .background(Color.LightGray, shape = RoundedCornerShape(4.dp))
-                            .clickable { selectedPost = post}
-                    ) {
-                        if(bitmap != null) {
-                            Image(
-                                bitmap = bitmap,
-                                contentDescription = null,
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop
-                            )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    thickness = 0.5.dp,
+                                    color = Color.LightGray
+                                )
+                            }
                         }
                     }
+
+                    items(posts) { post ->
+                        val bitmap = remember(post.contentPicture) {
+                            decodedBase64Image(post.contentPicture)
+                        }
+                        Box(
+                            modifier = Modifier
+                                .aspectRatio(1f)
+                                .padding(1.dp)
+                                .background(Color.LightGray, shape = RoundedCornerShape(4.dp))
+                                .clickable { selectedPost = post }
+                        ) {
+                            if (bitmap != null) {
+                                Image(
+                                    bitmap = bitmap,
+                                    contentDescription = null,
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                        }
+                    }
+
                 }
             }
         }

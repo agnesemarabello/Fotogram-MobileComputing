@@ -318,7 +318,7 @@ fun ProfileHeaderContent(data: ProfileDetailsResponse) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            ProfileStatColumn("   Posto   ", data.postsCount.toString())
+            ProfileStatColumn("    Post   ", data.postsCount.toString())
             ProfileStatColumn("Followers", data.followersCount.toString())
             ProfileStatColumn("Following", data.followingCount.toString())
         }
