@@ -1,13 +1,14 @@
 package com.example.fotogram
 
+import android.location.Location
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+
 
 class FeedViewModel(private val requestManager: RequestManager, private val postRepository: PostRepository) : ViewModel() {
 
@@ -22,11 +23,18 @@ class FeedViewModel(private val requestManager: RequestManager, private val post
 
     private var lastPostId: Int? = null
 
+    private val _userLocation = MutableStateFlow<Location?>(null)
+    var userLocation = _userLocation.asStateFlow()
+
     init {
         viewModelScope.launch {
             _myUserId.value = requestManager.getMyUserId()
         }
         loadFeed()
+    }
+
+    fun updateUserLocation(location: Location) {
+        _userLocation.value = location
     }
 
     fun toggleFollow(authorId: Int, currentFollowing: Boolean) {

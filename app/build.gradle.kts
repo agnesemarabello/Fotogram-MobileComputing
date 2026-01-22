@@ -63,6 +63,14 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.1.7")
 
     implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0")
+
+
+        // Mapbox Maps SDK for Android con estensione Compose
+    implementation("com.mapbox.maps:android:11.0.0")
+    implementation("com.mapbox.extension:maps-compose:11.0.0")
+
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 
 
     implementation("androidx.compose.foundation:foundation")
@@ -70,6 +78,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
     implementation(libs.androidx.ui)
     implementation(libs.androidx.foundation.layout)
+    implementation(libs.play.services.location)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

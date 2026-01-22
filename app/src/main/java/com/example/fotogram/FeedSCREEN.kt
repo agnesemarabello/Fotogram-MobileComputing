@@ -1,6 +1,7 @@
 package com.example.fotogram
 
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -58,6 +59,43 @@ fun FeedScreen(
     val myUserId by viewModel.myUserId.collectAsState()
 
     var selectedPost by remember { mutableStateOf<FeedPostUI?>(null) }
+
+    val context = LocalContext.current
+    val fusedLocationClient = remember {
+        com.google.android.gms.location.LocationServices.getFusedLocationProviderClient(context)
+    }
+    var hasPermission by remember {mutableStateOf(false)}
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        hasPermission = isGranted
+        if (isGranted) {
+            Log.d("Posizione", "Permessi ottenuti dall'utente")
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        hasPermission = androidx.core.content.ContextCompat.checkSelfPermission(
+            context,
+            android.Manifest.permission.ACCESS_FINE_LOCATION
+        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+
+        if(!hasPermission) {
+            Log.d("Posizione", "Richiesta permessi di posizione")
+            permissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+    }
+
+    LaunchedEffect(hasPermission) {
+        if(hasPermission) {
+            val location = LocationHelper.getCurrentLocation(fusedLocationClient)
+            if(location != null) {
+                Log.d("Posizione", "Posizione ottenuta: Lat ${location.latitude}, Long ${location.longitude}")
+                viewModel.updateUserLocation(location)
+            }
+        }
+    }
 
     Scaffold(
         modifier = modifier

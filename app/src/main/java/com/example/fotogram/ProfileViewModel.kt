@@ -1,5 +1,6 @@
 package com.example.fotogram
 
+import android.location.Location
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,6 +12,9 @@ import kotlinx.coroutines.launch
 class ProfileViewModel(private val requestManager: RequestManager, private val dataStoreManager: DataStoreManager): ViewModel() {
     private val _profileData = MutableStateFlow<ProfileDetailsResponse?>(null)
     val profileData: StateFlow<ProfileDetailsResponse?> = _profileData.asStateFlow()
+
+    private val _userLocation = MutableStateFlow<Location?>(null)
+    val userLocation: StateFlow<Location?> = _userLocation.asStateFlow()
 
     private val _userPosts = MutableStateFlow<List<Post>>(emptyList())
     val userPosts: StateFlow<List<Post>> = _userPosts.asStateFlow()
@@ -28,6 +32,9 @@ class ProfileViewModel(private val requestManager: RequestManager, private val d
         loadUserProfile()
     }
 
+    fun updateUserLocation(location: Location) {
+        _userLocation.value = location
+    }
     fun loadUserProfile() {
         viewModelScope.launch {
             _isLoading.value = true
@@ -64,9 +71,9 @@ class ProfileViewModel(private val requestManager: RequestManager, private val d
             loadUserProfile()
         }
     }
-    fun createNewPost(img: String, description: String) {
+    fun createNewPost(img: String, description: String, lat: Double? = null, lon: Double? = null) {
         viewModelScope.launch {
-            val success = requestManager.CreatePostRequest(description, img, null, null)
+            val success = requestManager.CreatePostRequest(description, img, lat, lon)
             if(success) {
                 loadUserProfile()
             }
