@@ -9,17 +9,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
+import io.ktor.client.request.request
 import kotlinx.coroutines.delay
 
 enum class Screen {
     SETUP,
     FEED,
-    PROFILE
+    PROFILE,
+    USER_DETAIL
 }
 @Composable
 fun AppNavigator(dataStoreManager: DataStoreManager) {
     var currentScreen by remember {mutableStateOf<Screen?>(null)}
     var isLoading by remember { mutableStateOf(true) }
+
+    var targetUserId by remember { mutableStateOf<Int?>(null) }
 
     val requestManager = remember { RequestManager(dataStoreManager) }
     val scope = rememberCoroutineScope()
@@ -43,12 +47,9 @@ fun AppNavigator(dataStoreManager: DataStoreManager) {
 
         isLoading = false
     }
-    when {
-        isLoading || currentScreen == null -> {
-            LoadingScreen()
-        }
+    when(currentScreen) {
 
-        currentScreen == Screen.SETUP -> {
+        Screen.SETUP -> {
             SetUpProfileScreen(
                 onRegistrationComplete = {
                     currentScreen = Screen.FEED
@@ -56,18 +57,35 @@ fun AppNavigator(dataStoreManager: DataStoreManager) {
             )
         }
 
-        currentScreen == Screen.FEED -> {
+        Screen.FEED -> {
             FeedScreen(
-                onNavigate = { screen ->
-                        currentScreen = screen
+                onNavigate = { screen -> currentScreen = screen },
+                onNavigateToUser = { userId ->
+                    targetUserId = userId
+                    currentScreen = Screen.USER_DETAIL
                 }
             )
+
         }
 
-        currentScreen == Screen.PROFILE -> {
+        Screen.PROFILE -> {
             ProfileScreen(
                 onNavigate = { screen -> currentScreen = screen }
             )
         }
+
+        Screen.USER_DETAIL -> {
+            targetUserId?.let { id ->
+                val userDetailViewModel: UserDetailViewModel = viewModel(
+                    factory = UserDetailViewModelFactory(requestManager)
+                )
+                UserDetailScreen(
+                    userId = id,
+                    viewModel = userDetailViewModel,
+                    onNavigate = { nextScreen -> currentScreen = nextScreen }
+                )
+            }
+        }
+        else -> if(isLoading) LoadingScreen()
     }
 }

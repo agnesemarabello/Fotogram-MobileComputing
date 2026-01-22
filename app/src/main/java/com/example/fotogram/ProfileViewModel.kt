@@ -15,10 +15,16 @@ class ProfileViewModel(private val requestManager: RequestManager, private val d
     private val _userPosts = MutableStateFlow<List<Post>>(emptyList())
     val userPosts: StateFlow<List<Post>> = _userPosts.asStateFlow()
 
+    private val _myUserId = MutableStateFlow<Int?>(null)
+    val myUserId: StateFlow<Int?> = _myUserId.asStateFlow()
+
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
     init {
+        viewModelScope.launch {
+            _myUserId.value = requestManager.getMyUserId()
+        }
         loadUserProfile()
     }
 

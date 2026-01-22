@@ -3,6 +3,7 @@ package com.example.fotogram
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,12 +17,36 @@ class FeedViewModel(private val requestManager: RequestManager) : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+    private val _myUserId = MutableStateFlow<Int?>(null)
+    val myUserId: StateFlow<Int?> = _myUserId.asStateFlow()
+
     private var lastPostId: Int? = null
 
     init {
+        viewModelScope.launch {
+            _myUserId.value = requestManager.getMyUserId()
+        }
         loadFeed()
     }
 
+    fun toggleFollow(authorId: Int, currentFollowing: Boolean) {
+        viewModelScope.launch {
+            val success = if (currentFollowing) {
+                requestManager.unfollowUserRequest(authorId)
+            } else {
+                requestManager.followUserRequest(authorId)
+            }
+            if(success) {
+                _posts.value = _posts.value.map { feedPost ->
+                    if(feedPost.post.authorId == authorId) {
+                        feedPost.copy(isFollowingAuthor = !currentFollowing)
+                    } else {
+                        feedPost
+                    }
+                }
+            }
+        }
+    }
     fun refreshFeed() {
         lastPostId = null
         _posts.value = emptyList()
@@ -50,7 +75,7 @@ class FeedViewModel(private val requestManager: RequestManager) : ViewModel() {
                                 post = post,
                                 authorUsername = authorDetails.username,
                                 authorProfilePicture = authorDetails.profilePicture,
-
+                                isFollowingAuthor = authorDetails.isYourFollowing
                                 )
                         } else null
                    } else null

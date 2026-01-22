@@ -52,6 +52,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -71,11 +72,17 @@ fun ProfileScreen(
     val profile by viewModel.profileData.collectAsState()
     val userPosts by viewModel.userPosts.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val myUserId by viewModel.myUserId.collectAsState()
 
     var selectedPost by remember { mutableStateOf<Post?>(null) }
 
+
     var showEditDialog by remember { mutableStateOf(false) }
     var showNewPostDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        viewModel.loadUserProfile()
+    }
 
     Scaffold(
         modifier = modifier
@@ -225,9 +232,18 @@ fun ProfileScreen(
                             feedPostUI = FeedPostUI(
                                 post = post,
                                 authorUsername = profile?.username,
-                                authorProfilePicture = profile?.profilePicture
+                                authorProfilePicture = profile?.profilePicture,
+                                isFollowingAuthor = false
                             ),
-                            isFullScreen = true
+                            isFullScreen = true,
+                            onAuthorClick = {
+                                selectedPost = null
+                            },
+                            onFollowToggle = {},
+                            isMe = true,
+                            onPostClick = {
+                                selectedPost = null
+                            }
                         )
                     }
                 }

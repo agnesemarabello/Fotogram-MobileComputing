@@ -21,7 +21,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.remember
 import java.time.Instant
 import java.time.ZoneId
@@ -29,70 +31,90 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @Composable
-fun PostCard(feedPostUI: FeedPostUI, isFullScreen: Boolean = false) {
+fun PostCard(
+    feedPostUI: FeedPostUI,
+    isFullScreen: Boolean = false,
+    onAuthorClick: (Int) -> Unit,
+    onFollowToggle: () -> Unit,
+    isMe: Boolean,
+    onPostClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
     ) {
         Column {
-            PostHeader(feedPostUI = feedPostUI)
-            PostContentImage(post = feedPostUI.post, isFullScreen = isFullScreen)
+            PostHeader(
+                feedPostUI = feedPostUI,
+                onAuthorClick = onAuthorClick,
+                onFollowToggle = onFollowToggle,
+                isMe = isMe
+            )
+            PostContentImage(post = feedPostUI.post, isFullScreen = isFullScreen, onClick = onPostClick)
             PostCaption(post = feedPostUI.post)
         }
     }
 }
 @Composable
-fun PostHeader(feedPostUI: FeedPostUI) {
+fun PostHeader(
+    feedPostUI: FeedPostUI,
+    onAuthorClick: (Int) -> Unit,
+    onFollowToggle: () -> Unit,
+    isMe: Boolean
+) {
     Row(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val profileImageBitmap = feedPostUI.authorProfilePicture?.let { base64 ->
-            decodedBase64Image(base64)
-        }
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(CircleShape)
-                .background(Color.Gray)
+        Row(
+            modifier = Modifier.clickable { onAuthorClick(feedPostUI.post.authorId)},
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            if(profileImageBitmap != null) {
-                Image(
-                    bitmap = profileImageBitmap,
-                    contentDescription = "Immagine di profilo di ${feedPostUI.authorUsername}",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
+
+            val profileImageBitmap = feedPostUI.authorProfilePicture?.let { base64 ->
+                decodedBase64Image(base64)
             }
-        }
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(Color.Gray)
+            ) {
+                if (profileImageBitmap != null) {
+                    Image(
+                        bitmap = profileImageBitmap,
+                        contentDescription = "Immagine di profilo di ${feedPostUI.authorUsername}",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+            }
             Text(
                 text = "  ${feedPostUI.authorUsername}",
                 style = MaterialTheme.typography.titleMedium,
             )
-
+        }
             Spacer(modifier = Modifier.weight(1f))
 
-           /*if(feedPostUI.isFollowingAuthor) {
-                Text(
-                    text = "Segui già",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Green
-                )
-            } else {
-                Text(
-                    text = "Non segui",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Red
-                )
-            }*/
+           if(!isMe) {
+               TextButton(
+                   onClick = onFollowToggle
+               ) {
+                   Text(
+                       text = if(feedPostUI.isFollowingAuthor) "Segui già" else "Segui",
+                       style = MaterialTheme.typography.labelLarge,
+                       color = if(feedPostUI.isFollowingAuthor) Color.Gray else MaterialTheme.colorScheme.primary
+                   )
+               }
+           }
     }
 }
 
 @Composable
-fun PostContentImage(post: Post, isFullScreen: Boolean) {
+fun PostContentImage(post: Post, isFullScreen: Boolean, onClick: () -> Unit) {
     val imageBitmap = remember(post.contentPicture) {
         decodedBase64Image(post.contentPicture)
     }
@@ -105,6 +127,7 @@ fun PostContentImage(post: Post, isFullScreen: Boolean) {
             contentDescription = post.contentText ?: "Immagine del post",
             modifier = Modifier
                 .fillMaxWidth()
+                .clickable { onClick() }
                 .requiredHeight(imageHeight),
             contentScale = ContentScale.Crop
         )

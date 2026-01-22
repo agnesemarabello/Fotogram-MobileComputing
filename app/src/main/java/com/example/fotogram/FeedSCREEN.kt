@@ -43,6 +43,7 @@ import kotlinx.coroutines.launch
 fun FeedScreen(
     modifier: Modifier = Modifier,
     onNavigate: (Screen) -> Unit,
+    onNavigateToUser: (Int) -> Unit,
     viewModel: FeedViewModel = viewModel(
         factory = FeedViewModelFactory(LocalContext.current)
     )
@@ -53,6 +54,7 @@ fun FeedScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
+    val myUserId by viewModel.myUserId.collectAsState()
 
     var selectedPost by remember { mutableStateOf<FeedPostUI?>(null) }
 
@@ -107,7 +109,22 @@ fun FeedScreen(
                 Box(
                     modifier = Modifier.clickable { selectedPost = feedPost }
                 ) {
-                    PostCard(feedPostUI = feedPost)
+                    PostCard(
+                        feedPostUI = feedPost,
+                        onAuthorClick = { authorId ->
+                            if(authorId == myUserId) {
+                                onNavigate(Screen.PROFILE)
+                            } else {
+                                onNavigateToUser(authorId)
+                            }
+                        },
+                        onFollowToggle = {
+                            viewModel.toggleFollow(feedPost.post.authorId, feedPost.isFollowingAuthor)
+                        },
+                        isMe = feedPost.post.authorId == myUserId,
+                        onPostClick = { selectedPost = feedPost }
+
+                    )
                 }
             }
 
@@ -171,7 +188,17 @@ fun FeedScreen(
                     ) {
                         PostCard(
                             feedPostUI = feedPostUI,
-                            isFullScreen = true
+                            isFullScreen = true,
+                            onAuthorClick = { authorId ->
+                                selectedPost = null
+                                if(authorId == myUserId) onNavigate(Screen.PROFILE)
+                                else onNavigate(Screen.USER_DETAIL)
+                            },
+                            onFollowToggle = {
+                                viewModel.toggleFollow(feedPostUI.post.authorId, feedPostUI.isFollowingAuthor)
+                            },
+                            isMe = true,
+                            onPostClick = { selectedPost = null }
                         )
                     }
                 }
