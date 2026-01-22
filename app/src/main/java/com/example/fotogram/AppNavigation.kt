@@ -1,6 +1,7 @@
 package com.example.fotogram
 
 import android.util.Log
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -8,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.ktor.client.request.request
 import kotlinx.coroutines.delay
@@ -25,6 +27,8 @@ fun AppNavigator(dataStoreManager: DataStoreManager) {
 
     var targetUserId by remember { mutableStateOf<Int?>(null) }
 
+    val feedViewModel: FeedViewModel = viewModel(factory = FeedViewModelFactory(LocalContext.current))
+    val feedListState = rememberLazyListState()
     val requestManager = remember { RequestManager(dataStoreManager) }
     val scope = rememberCoroutineScope()
 
@@ -59,6 +63,8 @@ fun AppNavigator(dataStoreManager: DataStoreManager) {
 
         Screen.FEED -> {
             FeedScreen(
+                listState = feedListState,
+                viewModel = feedViewModel,
                 onNavigate = { screen -> currentScreen = screen },
                 onNavigateToUser = { userId ->
                     targetUserId = userId
@@ -82,7 +88,10 @@ fun AppNavigator(dataStoreManager: DataStoreManager) {
                 UserDetailScreen(
                     userId = id,
                     viewModel = userDetailViewModel,
-                    onNavigate = { nextScreen -> currentScreen = nextScreen }
+                    onNavigate = { nextScreen -> currentScreen = nextScreen },
+                    onFollowChanged = { authorId, isFollowing ->
+                        feedViewModel.updateFollowState(authorId, isFollowing)
+                    }
                 )
             }
         }

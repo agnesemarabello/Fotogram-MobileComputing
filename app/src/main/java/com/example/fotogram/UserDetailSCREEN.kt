@@ -57,7 +57,8 @@ import androidx.compose.ui.window.DialogProperties
 fun UserDetailScreen(
     userId: Int,
     viewModel: UserDetailViewModel,
-    onNavigate: (Screen) -> Unit
+    onNavigate: (Screen) -> Unit,
+    onFollowChanged: (Int, Boolean) -> Unit
 ) {
     val data by viewModel.userData.collectAsState()
     val posts by viewModel.userPosts.collectAsState()
@@ -70,23 +71,6 @@ fun UserDetailScreen(
     }
 
     Scaffold(
-    /*    topBar = {
-            TopAppBar(
-                title = { },
-                navigationIcon = {
-                    IconButton(onClick = { onNavigate(Screen.FEED)}) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Torna indietro",
-                            tint = Color.Black
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
-                )
-            )
-        },*/
         bottomBar = {
             NavigationBar (
                 currentSelectedScreen = Screen.USER_DETAIL,
@@ -142,7 +126,10 @@ fun UserDetailScreen(
                                     onClick = {
                                         viewModel.toggleFollow(
                                             user.id,
-                                            user.isYourFollowing
+                                            user.isYourFollowing,
+                                            onResult = { id, isFollowing ->
+                                                onFollowChanged(id, isFollowing)
+                                            }
                                         )
                                     },
                                     modifier = Modifier
@@ -220,7 +207,13 @@ fun UserDetailScreen(
                         isFullScreen = true,
                         onAuthorClick = { selectedPost = null},
                         onFollowToggle = {
-                            viewModel.toggleFollow(post.authorId, data?.isYourFollowing ?: false)
+                            viewModel.toggleFollow(
+                                post.authorId,
+                                data?.isYourFollowing ?: false,
+                                onResult = { id, isFollowing ->
+                                onFollowChanged(id, isFollowing)
+                                }
+                            )
                         },
                         isMe = false,
                         onPostClick = {}

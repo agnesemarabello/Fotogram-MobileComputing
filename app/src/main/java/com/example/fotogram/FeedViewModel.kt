@@ -52,7 +52,18 @@ class FeedViewModel(private val requestManager: RequestManager) : ViewModel() {
         _posts.value = emptyList()
         loadFeed(isRefresh = true)
     }
+
+    fun updateFollowState(authorId: Int, isFollowing: Boolean) {
+        _posts.value = _posts.value.map { feedPost ->
+            if(feedPost.post.authorId == authorId) {
+                feedPost.copy(isFollowingAuthor = isFollowing)
+            } else {
+                feedPost
+            }
+        }
+    }
     fun loadFeed(isRefresh: Boolean = false) {
+
         if(_isLoading.value) return
 
         viewModelScope.launch {

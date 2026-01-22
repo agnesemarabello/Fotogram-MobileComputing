@@ -35,7 +35,11 @@ class UserDetailViewModel(private val requestManager: RequestManager) : ViewMode
             _isLoading.value = false
         }
     }
-    fun toggleFollow(userId: Int, isCurrentlyFollowing: Boolean) {
+    fun toggleFollow(
+        userId: Int,
+        isCurrentlyFollowing: Boolean,
+        onResult: (Int, Boolean) -> Unit
+    ) {
         viewModelScope.launch {
             val success = if(isCurrentlyFollowing) {
                 requestManager.unfollowUserRequest(userId)
@@ -44,8 +48,10 @@ class UserDetailViewModel(private val requestManager: RequestManager) : ViewMode
             }
             if(success) {
                 val updateDetails = requestManager.getUserDetailsRequest(userId)
-                _userData.value = updateDetails
-
+                if(updateDetails != null) {
+                    _userData.value = updateDetails
+                    onResult(userId, !isCurrentlyFollowing)
+                }
                 _userPosts.value = _userPosts.value.map {it}
             }
         }

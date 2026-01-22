@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -44,6 +45,7 @@ fun FeedScreen(
     modifier: Modifier = Modifier,
     onNavigate: (Screen) -> Unit,
     onNavigateToUser: (Int) -> Unit,
+    listState: LazyListState = rememberLazyListState(),
     viewModel: FeedViewModel = viewModel(
         factory = FeedViewModelFactory(LocalContext.current)
     )
@@ -53,7 +55,6 @@ fun FeedScreen(
     val posts by viewModel.posts.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val scope = rememberCoroutineScope()
-    val listState = rememberLazyListState()
     val myUserId by viewModel.myUserId.collectAsState()
 
     var selectedPost by remember { mutableStateOf<FeedPostUI?>(null) }
