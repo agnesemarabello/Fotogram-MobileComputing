@@ -94,13 +94,6 @@ fun ProfileScreen(
             onProfileClick = { viewModel.loadUserProfile() }
         ) }
     ) { paddingValues ->
-        Column (
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Color.Transparent),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
             if(isLoading && profile == null) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -197,7 +190,7 @@ fun ProfileScreen(
                     )
                 }
             }
-        }
+
     }
     selectedPost?.let { post ->
         Dialog(
