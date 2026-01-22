@@ -60,7 +60,7 @@ data class ProfileDetailsResponse(
     val username: String,
     val bio: String? = "",
     val dateOfBirth: String? = "",
-    val profilePicture: String,
+    val profilePicture: String?,
     val isYourFollower: Boolean,
     val isYourFollowing: Boolean,
     val followersCount: Int,
@@ -337,7 +337,7 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
             return false
         }
 
-        Log.i("RequestManager", "Richiesta di annullamento follow per l'utente ID: $targetId in corso...")
+        Log.i("RequestManager", "Richiesta di unfollow per l'utente ID: $targetId in corso...")
         try {
             val response = httpClient.delete(UNFOLLOW_USER_ENDPOINT) {
                 header("x-session-id", SID)

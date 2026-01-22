@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class FeedViewModel(private val requestManager: RequestManager) : ViewModel() {
+class FeedViewModel(private val requestManager: RequestManager, private val postRepository: PostRepository) : ViewModel() {
 
     private val _posts = MutableStateFlow<List<FeedPostUI>>(emptyList())
     val posts: StateFlow<List<FeedPostUI>> = _posts.asStateFlow()
@@ -77,7 +77,7 @@ class FeedViewModel(private val requestManager: RequestManager) : ViewModel() {
 
             if(postIds != null) {
                val aggregatedPost = postIds.mapNotNull { id ->
-                   val post = requestManager.getPostByIdRequest(id)
+                   val post = postRepository.getPost(id)
                    if(post != null) {
                        Log.d("FeedViewModel", "Ricevuti ${postIds.size} post dal server")
                        val authorDetails = requestManager.getUserDetailsRequest(post.authorId)

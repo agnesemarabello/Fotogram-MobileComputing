@@ -9,9 +9,10 @@ class FeedViewModelFactory(private val context: Context) : ViewModelProvider.Fac
         if(modelClass.isAssignableFrom(FeedViewModel::class.java)) {
             val dataStoreManager = DataStoreManager(context)
             val requestManager = RequestManager(dataStoreManager)
+            val postRepository = PostRepository(requestManager)
 
             @Suppress("UNCHECKED_CAST")
-            return FeedViewModel(requestManager) as T
+            return FeedViewModel(requestManager, postRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
