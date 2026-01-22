@@ -25,6 +25,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.remember
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -105,8 +107,10 @@ fun PostHeader(
                ) {
                    Text(
                        text = if(feedPostUI.isFollowingAuthor) "Segui già" else "Segui",
-                       style = MaterialTheme.typography.labelLarge,
-                       color = if(feedPostUI.isFollowingAuthor) Color.Gray else MaterialTheme.colorScheme.primary
+                       style = MaterialTheme.typography.titleMedium,
+                       color = if(feedPostUI.isFollowingAuthor) {
+                           Color(0xFF4CAF50)
+                       }else MaterialTheme.colorScheme.primary
                    )
                }
            }
