@@ -1,5 +1,6 @@
 package com.example.fotogram
 
+import com.mapbox.geojson.Point
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -23,8 +24,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.LaunchedEffect
@@ -33,11 +36,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.window.Dialog
+import com.mapbox.maps.extension.compose.MapboxMap
+import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
+import com.mapbox.maps.extension.compose.annotation.generated.PointAnnotation
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+//import com.mapbox.maps.extension.compose.annotation.rememberIconImage
+
+
 
 @Composable
 fun PostCard(
@@ -74,6 +84,8 @@ fun PostHeader(
 ) {
 
     var showMapDialog by remember { mutableStateOf(false) }
+    val hasCoordinates = feedPostUI.post.location?.latitude != null && feedPostUI.post.location?.longitude != null
+
     LaunchedEffect(feedPostUI.post.id) {
         Log.i("CARD_DEBUG", "Post ID: ${feedPostUI.post.id}, Location: ${feedPostUI.location?.latitude}, ${feedPostUI.location?.longitude}")
     }
@@ -118,7 +130,7 @@ fun PostHeader(
                 )
 
 
-                    if(feedPostUI.post.location != null ) {
+                if(hasCoordinates) {
                         Row (
                             modifier = Modifier.clickable { showMapDialog = true },
                             verticalAlignment = Alignment.CenterVertically
@@ -135,7 +147,7 @@ fun PostHeader(
                                 color = MaterialTheme.colorScheme.primary
                             )
                         }
-                    }
+                }
 
             }
         }
@@ -154,7 +166,12 @@ fun PostHeader(
                    )
                }
            }
-
+            if(showMapDialog && hasCoordinates) {
+                PostLocationDialog(
+                    location = feedPostUI.post.location!!,
+                    onDismiss = { showMapDialog = false }
+                )
+            }
     }
 }
 
@@ -205,4 +222,56 @@ fun PostCaption(post: Post) {
         style = MaterialTheme.typography.bodySmall,
         color = Color.Gray
     )
+}
+
+@Composable
+fun PostLocationDialog(
+    location: PostLocation,
+    onDismiss: () -> Unit
+) {
+    val lat = location.latitude ?: 0.0
+    val lon = location.longitude ?: 0.0
+    val point = Point.fromLngLat(lon, lat)
+
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .requiredHeight(450.dp),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Column {
+                val mapViewportState = rememberMapViewportState {
+                    setCameraOptions {
+                        center(point)
+                        zoom(14.0)
+                    }
+                }
+                Box(modifier = Modifier.weight(1f)) {
+                    MapboxMap(
+                        modifier = Modifier.fillMaxSize(),
+                        mapViewportState = mapViewportState
+                    ) {
+                    /*    val marker = rememberIconImage(
+                            key = "post-marker-${location.latitude}-${location.longitude}",
+                            painter = painterResource(id = R.drawable.location_marker)
+                        )
+
+                        PointAnnotation(point = point) {
+                            iconImage = marker
+                            iconSize = 1.0
+                        }*/
+                    }
+                }
+                Button(
+                    onClick = onDismiss,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                ) {
+                    Text(text = "Chiudi")
+                }
+            }
+        }
+    }
 }
