@@ -1,5 +1,6 @@
 package com.example.fotogram
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,17 +17,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Text
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material3.Icon
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalUriHandler
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -65,6 +72,12 @@ fun PostHeader(
     onFollowToggle: () -> Unit,
     isMe: Boolean
 ) {
+
+    var showMapDialog by remember { mutableStateOf(false) }
+    LaunchedEffect(feedPostUI.post.id) {
+        Log.i("CARD_DEBUG", "Post ID: ${feedPostUI.post.id}, Location: ${feedPostUI.location}")
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -94,10 +107,37 @@ fun PostHeader(
                     )
                 }
             }
-            Text(
-                text = "  ${feedPostUI.authorUsername}",
-                style = MaterialTheme.typography.titleMedium,
-            )
+
+            Column(
+                modifier = Modifier
+                    .padding(start = 8.dp)
+            ) {
+                Text(
+                    text = "  ${feedPostUI.authorUsername}",
+                    style = MaterialTheme.typography.titleMedium,
+                )
+
+                feedPostUI.location?.let { loc ->
+                    if(loc.latitude != null || loc.longitude != null) {
+                        Row (
+                            modifier = Modifier.clickable { showMapDialog = true },
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.LocationOn,
+                                contentDescription = null,
+                                modifier = Modifier.size(14.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = "Visualizza posizione",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
+            }
         }
             Spacer(modifier = Modifier.weight(1f))
 
@@ -114,6 +154,7 @@ fun PostHeader(
                    )
                }
            }
+
     }
 }
 

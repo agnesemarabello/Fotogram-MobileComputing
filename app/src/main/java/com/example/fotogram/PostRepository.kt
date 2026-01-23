@@ -15,6 +15,7 @@ class PostRepository(private val requestManager: RequestManager) {
         if(postServer != null) {
             postCache[postId] = postServer
             Log.i("Cache", "Post $postId SCARICATO e SALVATO in locale")
+            Log.i("Cache", "Post $postId con Lat: ${postServer.lat} e Lon: ${postServer.lon}")
         }
 
         return postServer

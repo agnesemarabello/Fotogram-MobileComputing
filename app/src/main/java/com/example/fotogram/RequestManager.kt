@@ -80,8 +80,9 @@ data class Post(
     val createdAt: String,
     val contentPicture: String,
 
-    val contentText: String? = null, //assumo per ora che il testo sia opzionale
-    val location: PostLocation? = null, //idem
+    val contentText: String? = null,
+    val lat: Double? = null,
+    val lon: Double? = null
 
 )
 
@@ -102,7 +103,8 @@ data class FeedPostUI(
     val post: Post,
     val authorUsername: String?,
     val authorProfilePicture: String? = null,
-    val isFollowingAuthor: Boolean
+    val isFollowingAuthor: Boolean,
+    val location: PostLocation? = null
 )
 
 class RequestManager(private val dataStoreManager: DataStoreManager) {

@@ -94,7 +94,8 @@ class FeedViewModel(private val requestManager: RequestManager, private val post
                                 post = post,
                                 authorUsername = authorDetails.username,
                                 authorProfilePicture = authorDetails.profilePicture,
-                                isFollowingAuthor = authorDetails.isYourFollowing
+                                isFollowingAuthor = authorDetails.isYourFollowing,
+                                location = PostLocation(latitude = post.lat, longitude = post.lon)
                                 )
                         } else null
                    } else null
