@@ -75,27 +75,23 @@ data class FeedPreview(
 @Serializable
 data class Post(
     val id: Int,
-
     val authorId: Int,
     val createdAt: String,
     val contentPicture: String,
-
     val contentText: String? = null,
-    val lat: Double? = null,
-    val lon: Double? = null
-
+    @SerialName("location") val location: PostLocation? = null
 )
 
 @Serializable
 data class CreatePostRequest(
     val contentText: String? = null,
     val contentPicture: String,
-    val location: PostLocation? = null
+    @SerialName("location") val location: PostLocation? = null
 )
 @Serializable
 data class PostLocation(
-    val latitude: Double?,
-    val longitude: Double?
+    @SerialName("latitude") val latitude: Double? = null,
+    @SerialName("longitude") val longitude: Double? = null
 )
 
 @Serializable
@@ -239,19 +235,17 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
             return false
         }
 
+
         val requestBody = CreatePostRequest(
             contentText = if(text.isNullOrBlank()) null else text,
             contentPicture = base64img,
             location = if(lat != null && lon != null) {
-                PostLocation(
-                    latitude = lat,
-                    longitude = lon
-                )
+                PostLocation(latitude = lat, longitude = lon)
             } else null
-
         )
 
-        Log.i("RequestManager", "Creazione post in corso...")
+        Log.i("RequestManager", "Creazione post in corso...Location: ${requestBody.location?.latitude}, ${requestBody.location?.longitude}")
+        Log.d("REQUEST_BODY_CHECK", "JSON che sto per inviare -> Location Object: ${requestBody.location}")
 
         return try {
             val response = httpClient.post(CREATE_POST_ENDPOINT) {
@@ -261,7 +255,10 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
             }
 
             if(response.status.isSuccess()) {
-                Log.i("RequestManager", "Post creato con successo.")
+                val createdPost = response.body<Post>()
+                Log.i("RequestManager", "Post creato con successo. ID: ${createdPost.id}")
+                Log.i("RequestManager", "Location ricevuta dal server: ${createdPost.location?.latitude}, ${createdPost.location?.longitude}")
+
                 true
             } else {
                 Log.d("RequestManager", "Creazione post fallita. Status code: ${response.status.value}")

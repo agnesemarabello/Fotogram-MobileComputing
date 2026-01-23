@@ -57,6 +57,7 @@ class FeedViewModel(private val requestManager: RequestManager, private val post
     }
     fun refreshFeed() {
         lastPostId = null
+        postRepository.clearCache()
         _posts.value = emptyList()
         loadFeed(isRefresh = true)
     }
@@ -95,8 +96,8 @@ class FeedViewModel(private val requestManager: RequestManager, private val post
                                 authorUsername = authorDetails.username,
                                 authorProfilePicture = authorDetails.profilePicture,
                                 isFollowingAuthor = authorDetails.isYourFollowing,
-                                location = PostLocation(latitude = post.lat, longitude = post.lon)
-                                )
+                                location = post.location
+                            )
                         } else null
                    } else null
                }

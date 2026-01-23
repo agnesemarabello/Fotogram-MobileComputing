@@ -62,10 +62,12 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.style.TextAlign
 import com.google.android.gms.location.LocationServices
 import com.mapbox.maps.extension.compose.MapboxMap
 import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
+import com.mapbox.maps.extension.compose.annotation.generated.CircleAnnotation
 import com.mapbox.maps.extension.compose.annotation.generated.PointAnnotation
 import com.mapbox.maps.plugin.LocationPuck2D
 
@@ -82,7 +84,7 @@ fun ProfileScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val myUserId by viewModel.myUserId.collectAsState()
 
-    var selectedPost by remember { mutableStateOf<Post?>(null) }
+    var selectedPost by remember { mutableStateOf<FeedPostUI?>(null) }
 
 
     var showEditDialog by remember { mutableStateOf(false) }
@@ -164,15 +166,15 @@ fun ProfileScreen(
 
                         //
                     }
-                    items(userPosts) { post ->
-                        val bitmap = remember(post.contentPicture) {
-                            decodedBase64Image(post.contentPicture)
+                    items(userPosts) { postUI ->
+                        val bitmap = remember(postUI.post.contentPicture) {
+                            decodedBase64Image(postUI.post.contentPicture)
                         }
                         Box(
                             modifier = Modifier
                                 .aspectRatio(1f)
                                 .padding(1.dp)
-                                .clickable{ selectedPost = post }
+                                .clickable{ selectedPost = postUI }
                                 .background(Color.LightGray, shape = RoundedCornerShape(4.dp))
                         ) {
                             if(bitmap != null) {
@@ -210,7 +212,7 @@ fun ProfileScreen(
             }
 
     }
-    selectedPost?.let { post ->
+    selectedPost?.let { postUI ->
         Dialog(
             onDismissRequest = { selectedPost = null },
             properties = DialogProperties(
@@ -240,21 +242,18 @@ fun ProfileScreen(
                             .clickable(enabled = false) {}
                     ) {
                         PostCard(
-                            feedPostUI = FeedPostUI(
+                            feedPostUI = postUI,
+                                /*(
                                 post = post,
                                 authorUsername = profile?.username,
                                 authorProfilePicture = profile?.profilePicture,
                                 isFollowingAuthor = false
-                            ),
+                            )*/
                             isFullScreen = true,
-                            onAuthorClick = {
-                                selectedPost = null
-                            },
+                            onAuthorClick = { selectedPost = null },
                             onFollowToggle = {},
                             isMe = true,
-                            onPostClick = {
-                                selectedPost = null
-                            }
+                            onPostClick = { selectedPost = null }
                         )
                     }
                 }
@@ -504,7 +503,13 @@ fun CreatePostDialog(
                             }
                         ) {
                             selectedPoint?.let { point ->
-                                PointAnnotation(point = point)
+                                CircleAnnotation(
+                                    point = point,
+                                    circleRadius = 10.0,
+                                    circleColorInt = Color.Red.toArgb(),
+                                    circleStrokeWidth = 2.0,
+                                    circleStrokeColorInt = Color.White.toArgb()
+                                )
                             }
                             LocationPuck2D()
                         }

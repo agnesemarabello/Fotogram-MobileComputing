@@ -9,8 +9,9 @@ class ProfileViewModelFactory(private val context: Context) : ViewModelProvider.
         if (modelClass.isAssignableFrom(ProfileViewModel::class.java)) {
             val dataStoreManager = DataStoreManager(context)
             val requestManager = RequestManager(dataStoreManager)
+            val postRepository = PostRepository(requestManager)
             @Suppress("UNCHECKED_CAST")
-            return ProfileViewModel(requestManager, dataStoreManager) as T
+            return ProfileViewModel(requestManager, dataStoreManager, postRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

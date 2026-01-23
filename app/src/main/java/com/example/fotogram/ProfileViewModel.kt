@@ -9,15 +9,19 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class ProfileViewModel(private val requestManager: RequestManager, private val dataStoreManager: DataStoreManager): ViewModel() {
+class ProfileViewModel(
+    private val requestManager: RequestManager,
+    private val dataStoreManager: DataStoreManager,
+    private val postRepository: PostRepository
+    ): ViewModel() {
     private val _profileData = MutableStateFlow<ProfileDetailsResponse?>(null)
     val profileData: StateFlow<ProfileDetailsResponse?> = _profileData.asStateFlow()
 
     private val _userLocation = MutableStateFlow<Location?>(null)
     val userLocation: StateFlow<Location?> = _userLocation.asStateFlow()
 
-    private val _userPosts = MutableStateFlow<List<Post>>(emptyList())
-    val userPosts: StateFlow<List<Post>> = _userPosts.asStateFlow()
+    private val _userPosts = MutableStateFlow<List<FeedPostUI>>(emptyList())
+    val userPosts: StateFlow<List<FeedPostUI>> = _userPosts.asStateFlow()
 
     private val _myUserId = MutableStateFlow<Int?>(null)
     val myUserId: StateFlow<Int?> = _myUserId.asStateFlow()
@@ -49,7 +53,16 @@ class ProfileViewModel(private val requestManager: RequestManager, private val d
                 val postIds = requestManager.getUserPostsRequest(uid)
                 if (postIds != null) {
                     val posts = postIds.mapNotNull { id ->
-                        requestManager.getSinglePost(id)
+                        val post = postRepository.getPost(id)
+                        if(post != null && details != null) {
+                            FeedPostUI(
+                                post = post,
+                                authorUsername = details.username,
+                                authorProfilePicture = details.profilePicture,
+                                isFollowingAuthor = false,
+                                location = post.location
+                            )
+                        } else null
                     }
                     Log.d("ProfileViewModel", "Post utente caricati: ${posts.size}")
                     _userPosts.value = posts
@@ -71,10 +84,12 @@ class ProfileViewModel(private val requestManager: RequestManager, private val d
             loadUserProfile()
         }
     }
-    fun createNewPost(img: String, description: String, lat: Double? = null, lon: Double? = null) {
+    fun createNewPost(img: String, description: String, lat: Double?, lon: Double?) {
         viewModelScope.launch {
+            Log.d("API_DEBUG", "Memorizzo Laz: $lat, Lon: $lon")
             val success = requestManager.CreatePostRequest(description, img, lat, lon)
             if(success) {
+                postRepository.clearCache()
                 loadUserProfile()
             }
         }

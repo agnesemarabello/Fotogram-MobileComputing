@@ -5,6 +5,9 @@ import android.util.Log
 class PostRepository(private val requestManager: RequestManager) {
     private val postCache = mutableMapOf<Int, Post>()
 
+    fun clearCache() {
+        postCache.clear()
+    }
     suspend fun getPost(postId: Int): Post? {
         if(postCache.containsKey(postId)) {
             Log.i("Cache", "Post $postId PRESENTE in locale")
@@ -15,7 +18,7 @@ class PostRepository(private val requestManager: RequestManager) {
         if(postServer != null) {
             postCache[postId] = postServer
             Log.i("Cache", "Post $postId SCARICATO e SALVATO in locale")
-            Log.i("Cache", "Post $postId con Lat: ${postServer.lat} e Lon: ${postServer.lon}")
+            Log.i("Cache", "Post $postId con Lat: ${postServer.location?.latitude} e Lon: ${postServer.location?.longitude}")
         }
 
         return postServer

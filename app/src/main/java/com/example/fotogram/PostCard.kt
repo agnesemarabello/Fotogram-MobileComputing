@@ -75,7 +75,7 @@ fun PostHeader(
 
     var showMapDialog by remember { mutableStateOf(false) }
     LaunchedEffect(feedPostUI.post.id) {
-        Log.i("CARD_DEBUG", "Post ID: ${feedPostUI.post.id}, Location: ${feedPostUI.location}")
+        Log.i("CARD_DEBUG", "Post ID: ${feedPostUI.post.id}, Location: ${feedPostUI.location?.latitude}, ${feedPostUI.location?.longitude}")
     }
 
     Row(
@@ -117,8 +117,8 @@ fun PostHeader(
                     style = MaterialTheme.typography.titleMedium,
                 )
 
-                feedPostUI.location?.let { loc ->
-                    if(loc.latitude != null || loc.longitude != null) {
+
+                    if(feedPostUI.post.location != null ) {
                         Row (
                             modifier = Modifier.clickable { showMapDialog = true },
                             verticalAlignment = Alignment.CenterVertically
@@ -136,7 +136,7 @@ fun PostHeader(
                             )
                         }
                     }
-                }
+
             }
         }
             Spacer(modifier = Modifier.weight(1f))
