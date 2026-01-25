@@ -167,7 +167,7 @@ fun PostHeader(
                    onClick = onFollowToggle
                ) {
                    Text(
-                       text = if(feedPostUI.isFollowingAuthor) "Segui già" else "Segui",
+                       text = if(feedPostUI.isFollowingAuthor) "✓ Segui già" else "+ Segui",
                        style = MaterialTheme.typography.titleMedium,
                        color = if(feedPostUI.isFollowingAuthor) {
                            Color(0xFF4CAF50)

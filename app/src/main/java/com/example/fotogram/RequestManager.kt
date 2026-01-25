@@ -45,8 +45,8 @@ data class UserRegistrationResponse(
 @Serializable
 data class UpdateProfileRequest(
     val username: String,
-    val bio: String = "",
-    val dateOfBirth: String = ""
+    val bio: String? = null,
+    val dateOfBirth: String? = null
 )
 
 @Serializable
@@ -235,9 +235,10 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
             return false
         }
 
+        val descriptionToSend = if(text.isNullOrBlank()) null else text
 
         val requestBody = CreatePostRequest(
-            contentText = if(text.isNullOrBlank()) null else text,
+            contentText = descriptionToSend,
             contentPicture = base64img,
             location = if(lat != null && lon != null) {
                 PostLocation(latitude = lat, longitude = lon)
