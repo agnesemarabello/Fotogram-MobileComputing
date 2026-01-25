@@ -2,6 +2,7 @@ package com.example.fotogram
 
 import com.mapbox.geojson.Point
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,7 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,16 +36,25 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.Dialog
+import com.mapbox.maps.extension.compose.MapEffect
 import com.mapbox.maps.extension.compose.MapboxMap
 import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
+import com.mapbox.maps.extension.compose.annotation.generated.CircleAnnotation
 import com.mapbox.maps.extension.compose.annotation.generated.PointAnnotation
+import com.mapbox.maps.plugin.PuckBearing
+import com.mapbox.maps.plugin.annotation.generated.CircleAnnotation
+import com.mapbox.maps.plugin.locationcomponent.createDefault2DPuck
+import com.mapbox.maps.plugin.locationcomponent.location
+import io.ktor.client.request.invoke
+import io.ktor.http.invoke
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-//import com.mapbox.maps.extension.compose.annotation.rememberIconImage
 
 
 
@@ -252,15 +261,24 @@ fun PostLocationDialog(
                         modifier = Modifier.fillMaxSize(),
                         mapViewportState = mapViewportState
                     ) {
-                    /*    val marker = rememberIconImage(
-                            key = "post-marker-${location.latitude}-${location.longitude}",
-                            painter = painterResource(id = R.drawable.location_marker)
+
+                        CircleAnnotation(
+                            point = point,
+                            circleRadius = 7.0,
+                            circleColorInt = Color.Red.toArgb(),
+                            circleStrokeWidth = 3.0,
+                            circleStrokeColorInt = Color.White.toArgb(),
+                            circleOpacity = 1.0
                         )
 
-                        PointAnnotation(point = point) {
-                            iconImage = marker
-                            iconSize = 1.0
-                        }*/
+                        MapEffect(Unit) { mapView ->
+                            mapView.location.updateSettings {
+                                locationPuck = createDefault2DPuck(withBearing = true)
+                                puckBearingEnabled = true
+                                puckBearing = PuckBearing.HEADING
+                                enabled = true
+                            }
+                        }
                     }
                 }
                 Button(
@@ -275,3 +293,4 @@ fun PostLocationDialog(
         }
     }
 }
+

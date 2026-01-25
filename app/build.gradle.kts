@@ -66,9 +66,13 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0")
 
 
-        // Mapbox Maps SDK for Android con estensione Compose
+
     implementation("com.mapbox.maps:android:11.0.0")
     implementation("com.mapbox.extension:maps-compose:11.0.0")
+
+
+    implementation ("com.google.maps.android:maps-compose-utils:2.11.4")
+
 
     implementation("com.google.android.gms:play-services-location:21.3.0")
 
@@ -79,6 +83,7 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.foundation.layout)
     implementation(libs.play.services.location)
+    implementation(libs.ui)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
