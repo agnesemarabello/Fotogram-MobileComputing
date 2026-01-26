@@ -1,5 +1,6 @@
 package com.example.fotogram
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,11 +19,13 @@ class UserDetailViewModel(private val requestManager: RequestManager) : ViewMode
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     fun loadUser(userId: Int) {
+        Log.i("DETTAGLI_UTENTE", "Caricamento dettagli utente per userId: $userId -> ${_isLoading.value}")
         if(_isLoading.value) return
 
         viewModelScope.launch {
             _isLoading.value = true
             val details = requestManager.getUserDetailsRequest(userId)
+            Log.i("DETTAGLI_UTENTE", "Dettagli utente caricati: $details")
             if(details != null) {
                 _userData.value = details
                 val postIds = requestManager.getUserPostsRequest(userId)

@@ -57,7 +57,8 @@ fun PostCard(
     onAuthorClick: (Int) -> Unit,
     onFollowToggle: () -> Unit,
     isMe: Boolean,
-    onPostClick: () -> Unit
+    onPostClick: () -> Unit,
+    userId: Int = feedPostUI.post.authorId
 ) {
     Card(
         modifier = Modifier

@@ -1,5 +1,6 @@
 package com.example.fotogram
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -56,10 +57,12 @@ fun UserDetailScreen(
     val data by viewModel.userData.collectAsState()
     val posts by viewModel.userPosts.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-
+    Log.i("DEBUG_USER", "UserId: $userId")
     var selectedPost by remember { mutableStateOf<Post?>(null) }
 
+
     LaunchedEffect(userId) {
+        Log.i("DEBUG", "Caricamento dettagli utente per userId: $userId .......")
         viewModel.loadUser(userId)
     }
 

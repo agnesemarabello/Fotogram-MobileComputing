@@ -16,6 +16,7 @@ import kotlinx.coroutines.delay
 enum class Screen {
     SETUP,
     FEED,
+  //  POST,
     PROFILE,
     USER_DETAIL
 }
@@ -80,12 +81,14 @@ fun AppNavigator(dataStoreManager: DataStoreManager) {
         }
 
         Screen.USER_DETAIL -> {
-            targetUserId?.let { id ->
+            if(targetUserId == null) {
+                LoadingScreen()
+            } else {
                 val userDetailViewModel: UserDetailViewModel = viewModel(
                     factory = UserDetailViewModelFactory(requestManager)
                 )
                 UserDetailScreen(
-                    userId = id,
+                    userId = targetUserId!!,
                     viewModel = userDetailViewModel,
                     onNavigate = { nextScreen -> currentScreen = nextScreen },
                     onFollowChanged = { authorId, isFollowing ->

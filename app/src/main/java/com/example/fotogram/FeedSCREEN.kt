@@ -40,6 +40,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.launch
+import kotlin.math.log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -232,8 +233,9 @@ fun FeedScreen(
                             isFullScreen = true,
                             onAuthorClick = { authorId ->
                                 selectedPost = null
+                                Log.d("SUCAAAA", " authorId = $authorId")
                                 if(authorId == myUserId) onNavigate(Screen.PROFILE)
-                                else onNavigate(Screen.USER_DETAIL)
+                                else onNavigateToUser(authorId)
                             },
                             onFollowToggle = {
                                 viewModel.toggleFollow(feedPostUI.post.authorId, feedPostUI.isFollowingAuthor)
