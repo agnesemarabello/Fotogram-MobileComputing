@@ -1,6 +1,6 @@
 # Fotogram 📸
 
-**Fotogram** è un'applicazione Android moderna ispirata ai social network fotografici. Il progetto è stato sviluppato come parte del corso di **Mobile Computing** (2025/2026), mettendo in pratica i principi della programmazione reattiva, della gestione delle reti e della persistenza dei dati.
+**Fotogram** è un prototipo di client per un social network basato sulla condivisione di immagini. Il progetto è stato sviluppato come parte del corso di **Mobile Computing** (2025/2026), mettendo in pratica i principi della programmazione reattiva, della gestione delle reti e della persistenza dei dati.
 
 ## 🚀 Funzionalità Principali
 
