@@ -1,5 +1,7 @@
 package com.example.fotogram
 
+import android.util.Log
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,20 +21,31 @@ class SetUpProfileViewModel(
         onComplete: () -> Unit
     ) {
         viewModelScope.launch {
-            _isLoading.value = true
-            val regResponse = requestManager.registrationRequest()
-            if (regResponse != null) {
-                val sid = regResponse.sessionId
-                val uid = regResponse.userId
+            try {
+                _isLoading.value = true
+                val regResponse = requestManager.registrationRequest()
+                if (regResponse != null) {
+                    Log.d("SET_UP", "Registrazione OK, SID: ${regResponse.sessionId}")
+                    val sid = regResponse.sessionId
+                    val uid = regResponse.userId
 
-                dataStoreManager.saveSession(sid, uid)
-                requestManager.updateProfileRequest(newUsername = username, newBio = "", newDateOfBirth = null)
-                if(!base64img.isNullOrEmpty()) {
-                    requestManager.updateProfilePictureRequest(base64img)
+                    dataStoreManager.saveSession(sid, uid)
+                    val profileRes = requestManager.updateProfileRequest(
+                        newUsername = username,
+                        newBio = null,
+                        newDateOfBirth = null
+                    )
+
+                    if (!base64img.isNullOrEmpty()) {
+                        requestManager.updateProfilePictureRequest(base64img)
+                    }
+                    onComplete()
                 }
-                onComplete()
+            } catch (e: Exception) {
+                Log.e("SET_UP", "Errore durante la registrazione: ${e.message}")
+            } finally {
+                _isLoading.value = false
             }
-            _isLoading.value = false
         }
     }
 

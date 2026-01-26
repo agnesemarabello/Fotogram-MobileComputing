@@ -39,7 +39,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.Dialog
-import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,18 +63,16 @@ fun FeedScreen(
 
     val context = LocalContext.current
     val fusedLocationClient = remember {
-        LocationServices.getFusedLocationProviderClient(context)
+        com.google.android.gms.location.LocationServices.getFusedLocationProviderClient(context)
     }
     var hasPermission by remember {mutableStateOf(false)}
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { isGaranted ->
-        hasPermission = isGaranted
-        if(hasPermission) {
-            Log.d("Posizione", "Permessi ottenuti")
-        } else {
-            Log.d("Posizione", "Permessi negati")
+    ) { isGranted ->
+        hasPermission = isGranted
+        if (isGranted) {
+            Log.d("Posizione", "Permessi ottenuti dall'utente")
         }
     }
 
@@ -97,7 +94,6 @@ fun FeedScreen(
             }
         }
     }
-
 
     Scaffold(
         modifier = modifier

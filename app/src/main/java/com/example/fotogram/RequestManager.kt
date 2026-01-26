@@ -57,9 +57,9 @@ data class UpdateProfilePictureRequest(
 @Serializable
 data class ProfileDetailsResponse(
     val id: Int,
-    val username: String,
+    val username: String?,
     val bio: String? = "",
-    val dateOfBirth: String? = "",
+    val dateOfBirth: String? = null,
     val profilePicture: String?,
     val isYourFollower: Boolean,
     val isYourFollowing: Boolean,
@@ -185,13 +185,15 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
         }
 
         val usernameOK = if(newUsername.length > 15) newUsername.take(15) else newUsername
+        Log.i("RequestManager", "Username da inviare: $usernameOK")
 
         val requestBody = UpdateProfileRequest(
             username = usernameOK,
-            bio = newBio ?: "",
-            dateOfBirth = newDateOfBirth ?: ""
+            bio = if(newBio.isNullOrBlank()) null else newBio,
+            dateOfBirth = if(newDateOfBirth.isNullOrBlank()) null else newDateOfBirth
         )
 
+        Log.i("RequestManager", "Request Body da inviare: $requestBody")
         Log.i("RequestManager", "Aggiornamento profilo in corso...")
 
         try{
