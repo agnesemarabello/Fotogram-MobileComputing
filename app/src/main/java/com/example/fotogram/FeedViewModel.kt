@@ -24,7 +24,6 @@ class FeedViewModel(private val requestManager: RequestManager, private val post
     private var lastPostId: Int? = null
 
     private val _userLocation = MutableStateFlow<Location?>(null)
-    var userLocation = _userLocation.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -79,7 +78,7 @@ class FeedViewModel(private val requestManager: RequestManager, private val post
             _isLoading.value = true
 
             if(isRefresh) {
-                lastPostId = null //Se c'è un refresh, resetta l'ultimo post caricato
+                lastPostId = null 
             }
 
             val postIds = requestManager.getFeedRequest(limit = 10, maxPostId = lastPostId)
