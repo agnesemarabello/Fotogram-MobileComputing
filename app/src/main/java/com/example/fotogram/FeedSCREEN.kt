@@ -53,6 +53,10 @@ fun FeedScreen(
     )
 ) {
 
+    LaunchedEffect(Unit) {
+        viewModel.loadFeed()
+    }
+
     val isRefreshing by viewModel.isLoading.collectAsState()
     val posts by viewModel.posts.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
