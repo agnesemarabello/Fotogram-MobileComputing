@@ -12,7 +12,7 @@
 * **Profilo Utente:** Gestione dei propri dati, visualizzazione del numero di followers/following e griglia personale dei post.
 
 ## 🛠 Swagger UI
-**Swagger UI** per utilizzare le chiamate API del server fornito dal professore: `https://develop.ewlab.di.unimi.it/mc/2526/#/` 
+**Swagger UI** utilizzato per le chiamate API del server fornito dal professore: `https://develop.ewlab.di.unimi.it/mc/2526/#/` 
 
 
 ## 📦 Architettura del Progetto
