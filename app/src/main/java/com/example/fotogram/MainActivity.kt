@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.example.fotogram.ui.theme.FotogramTheme
-import androidx.compose.runtime.*
 import com.mapbox.common.MapboxOptions
 
 class MainActivity : ComponentActivity() {

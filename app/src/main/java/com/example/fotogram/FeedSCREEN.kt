@@ -2,6 +2,7 @@ package com.example.fotogram
 
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -38,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.Dialog
+import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,24 +64,23 @@ fun FeedScreen(
 
     val context = LocalContext.current
     val fusedLocationClient = remember {
-        com.google.android.gms.location.LocationServices.getFusedLocationProviderClient(context)
+        LocationServices.getFusedLocationProviderClient(context)
     }
     var hasPermission by remember {mutableStateOf(false)}
 
     val permissionLauncher = rememberLauncherForActivityResult(
-        androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        hasPermission = isGranted
-        if (isGranted) {
-            Log.d("Posizione", "Permessi ottenuti dall'utente")
+        ActivityResultContracts.RequestPermission()
+    ) { isGaranted ->
+        hasPermission = isGaranted
+        if(hasPermission) {
+            Log.d("Posizione", "Permessi ottenuti")
+        } else {
+            Log.d("Posizione", "Permessi negati")
         }
     }
 
     LaunchedEffect(Unit) {
-        hasPermission = androidx.core.content.ContextCompat.checkSelfPermission(
-            context,
-            android.Manifest.permission.ACCESS_FINE_LOCATION
-        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        hasPermission = checkLocationPermission(context)
 
         if(!hasPermission) {
             Log.d("Posizione", "Richiesta permessi di posizione")
@@ -96,6 +97,7 @@ fun FeedScreen(
             }
         }
     }
+
 
     Scaffold(
         modifier = modifier
