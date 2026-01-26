@@ -7,7 +7,7 @@
 * **Autenticazione & Setup:** Registrazione automatica dell'utente e configurazione del profilo (Username, Bio, Immagine del profilo).
 * **Feed dinamico:** Visualizzazione di post in ordine cronologico con caricamento paginato.
 * **Social Interactions:** Possibilità di seguire/smettere di seguire (Follow/Unfollow) altri utenti.
-* **Creazione Post:** Scatto o selezione di foto dalla galleria con possibilità di aggiungere descrizioni e posizione geografica.
+* **Creazione Post:** Selezione di foto dalla galleria con possibilità di aggiungere descrizioni e posizione geografica.
 * **Geolocalizzazione:** Integrazione con mappe per visualizzare dove è stata scattata una foto.
 * **Profilo Utente:** Gestione dei propri dati, visualizzazione del numero di followers/following e griglia personale dei post.
 
