@@ -87,7 +87,7 @@ class ProfileViewModel(
     fun createNewPost(img: String, description: String, lat: Double?, lon: Double?) {
         viewModelScope.launch {
             Log.d("API_DEBUG", "Memorizzo Laz: $lat, Lon: $lon")
-            val success = requestManager.CreatePostRequest(description, img, lat, lon)
+            val success = requestManager.createPostRequest(description, img, lat, lon)
             if(success) {
                 postRepository.clearCache()
                 loadUserProfile()

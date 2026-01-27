@@ -54,6 +54,7 @@ fun FeedScreen(
     viewModel: FeedViewModel
 ) {
 
+    //  Caricamento iniziale del feed
     LaunchedEffect(Unit) {
         viewModel.loadFeed()
     }
@@ -65,12 +66,14 @@ fun FeedScreen(
 
     var selectedPost by remember { mutableStateOf<FeedPostUI?>(null) }
 
+    //  Configurazione della posizione corrente del dispositivo
     val context = LocalContext.current
     val fusedLocationClient = remember {
         LocationServices.getFusedLocationProviderClient(context)
     }
     var hasPermission by remember {mutableStateOf(false)}
 
+    //  Gestione della richiesta dei permessi di posizione
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -82,6 +85,7 @@ fun FeedScreen(
         }
     }
 
+    //  Controllo e richiesta dei permessi
     LaunchedEffect(Unit) {
         hasPermission = checkLocationPermission(context)
 
@@ -91,6 +95,7 @@ fun FeedScreen(
         }
     }
 
+    //  Recupero della posizione corrente se i permessi sono stati concessi
     LaunchedEffect(hasPermission) {
         if(hasPermission) {
             try {
@@ -135,6 +140,7 @@ fun FeedScreen(
         }
     ) { paddingValues ->
 
+        //  Aggiornamento manuale del feed
         PullToRefreshBox(
             isRefreshing = isLoading && posts.isNotEmpty(),
             onRefresh = { viewModel.refreshFeed() },
@@ -182,6 +188,7 @@ fun FeedScreen(
                 }
             }
 
+            //  Caricamento automatico del feed quando si arriva in fondo alla lista
             if (posts.isNotEmpty()) {
                 item {
                     LaunchedEffect(posts.size) {
@@ -215,6 +222,10 @@ fun FeedScreen(
         }
         }
     }
+    /*
+        ***    Dialog del post selezionato    ***:
+        Mostra un dialog a schermo intero con i dettagli del post selezionato.
+    */
     selectedPost?.let { feedPostUI ->
         Dialog(
             onDismissRequest = { selectedPost = null },

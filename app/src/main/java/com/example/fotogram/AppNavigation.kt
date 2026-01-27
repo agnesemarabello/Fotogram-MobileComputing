@@ -12,26 +12,28 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
 
 enum class Screen {
-    SETUP,
-    FEED,
-    PROFILE,
-    USER_DETAIL
+    SETUP,          //  Screen per la configurazione iniziale del profilo
+    FEED,           //  Screen principale che mostra il feed contenente i post
+    PROFILE,        //  Screen del profilo utente
+    USER_DETAIL     //  Screen per visualizzare il profilo di un altro utente
 }
 @Composable
 fun AppNavigator(dataStoreManager: DataStoreManager) {
     var currentScreen by remember {mutableStateOf<Screen?>(null)}
     var isLoading by remember { mutableStateOf(true) }
-
     var targetUserId by remember { mutableStateOf<Int?>(null) }
 
+    //  Stato della lista per il Feed per mantenere la posizione di scorrimento
     val feedListState = rememberLazyListState()
 
     val requestManager = remember { RequestManager(dataStoreManager) }
     val postRepository = remember { PostRepository(requestManager) }
+
     val feedViewModel: FeedViewModel = viewModel {
         FeedViewModel(requestManager, postRepository)
     }
 
+    //  Controllo del SID all'avvio dell'app
     LaunchedEffect(Unit) {
         delay(3000)
 
@@ -41,6 +43,7 @@ fun AppNavigator(dataStoreManager: DataStoreManager) {
             Log.e("AppNavigator", "Errore nel recupero del SID: ${e.message}")
             null
         }
+        //  Se il SID esiste -> FEED, altrimenti -> SETUP
         if (sid != null && sid.isNotEmpty()) {
             currentScreen = Screen.FEED
             Log.i("AppNavigator", "SID Esistente: $sid -> Mostra FEED")

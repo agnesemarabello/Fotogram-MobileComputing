@@ -9,6 +9,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+/**
+*** FeedViewModel ***:
+    Gestisce la logica di business per la schermata del feed
+*/
 class FeedViewModel(private val requestManager: RequestManager, private val postRepository: PostRepository) : ViewModel() {
 
     private val _posts = MutableStateFlow<List<FeedPostUI>>(emptyList())
@@ -22,7 +26,8 @@ class FeedViewModel(private val requestManager: RequestManager, private val post
 
     private var lastPostId: Int? = null
 
-    private val _userLocation = MutableStateFlow<Location?>(null)
+    private val userLocation = MutableStateFlow<Location?>(null)
+
 
     init {
         viewModelScope.launch {
@@ -32,9 +37,11 @@ class FeedViewModel(private val requestManager: RequestManager, private val post
     }
 
     fun updateUserLocation(location: Location) {
-        _userLocation.value = location
+        userLocation.value = location
     }
 
+    //  Funzione che gestisce il follow/unfollow di un utente
+    //  Effettua la richiesta al server e aggiorna lo stato del feed di conseguenza
     fun toggleFollow(authorId: Int, currentFollowing: Boolean) {
         viewModelScope.launch {
             val success = if (currentFollowing) {
@@ -43,6 +50,7 @@ class FeedViewModel(private val requestManager: RequestManager, private val post
                 requestManager.followUserRequest(authorId)
             }
             if(success) {
+                // Aggiorna solo i post relativi all'utente interessato
                 _posts.value = _posts.value.map { feedPost ->
                     if(feedPost.post.authorId == authorId) {
                         feedPost.copy(isFollowingAuthor = !currentFollowing)
@@ -53,6 +61,7 @@ class FeedViewModel(private val requestManager: RequestManager, private val post
             }
         }
     }
+    //  Ricarca il feed svuotando la cache
     fun refreshFeed() {
         lastPostId = null
         postRepository.clearCache()
@@ -60,6 +69,7 @@ class FeedViewModel(private val requestManager: RequestManager, private val post
         loadFeed(isRefresh = true)
     }
 
+    //  Aggiorna lo stato di follow per un utente specifico
     fun updateFollowState(authorId: Int, isFollowing: Boolean) {
         _posts.value = _posts.value.map { feedPost ->
             if(feedPost.post.authorId == authorId) {
@@ -69,6 +79,8 @@ class FeedViewModel(private val requestManager: RequestManager, private val post
             }
         }
     }
+
+    //  Carica il feed dal server
     fun loadFeed(isRefresh: Boolean = false) {
 
         if(_isLoading.value) return
