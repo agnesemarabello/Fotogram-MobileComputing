@@ -50,6 +50,10 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+/**
+ *** Componente per la visualizzazione di un singolo post.
+     Implementa una card che include l'intestazione del post, l'immagine del post e un descrizione (testo e data di pubblicazione).
+ * **/
 @Composable
 fun PostCard(
     feedPostUI: FeedPostUI,
@@ -57,8 +61,7 @@ fun PostCard(
     onAuthorClick: (Int) -> Unit,
     onFollowToggle: () -> Unit,
     isMe: Boolean,
-    onPostClick: () -> Unit,
-    userId: Int = feedPostUI.post.authorId
+    onPostClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -170,7 +173,7 @@ fun PostHeader(
            }
             if(showMapDialog && hasCoordinates) {
                 PostLocationDialog(
-                    location = feedPostUI.post.location!!,
+                    location = feedPostUI.post.location,
                     onDismiss = { showMapDialog = false }
                 )
             }

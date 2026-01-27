@@ -121,7 +121,7 @@ class FeedViewModel(private val requestManager: RequestManager, private val post
                 lastPostId = postIds.last()
 
             } else {
-                Log.e("FeedViewModel", "Caricamento feed preview fallito")
+                Log.e("FeedViewModel", "Caricamento feed fallito")
             }
 
             _isLoading.value = false

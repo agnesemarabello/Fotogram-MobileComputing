@@ -16,6 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 
+/**
+ Componente UI per la barra di navigazione dell'app Fotogram.
+ * */
 @Composable
 fun NavigationBar(
     currentSelectedScreen: Screen,
@@ -27,6 +30,9 @@ fun NavigationBar(
             containerColor = Color.LightGray,
             contentColor = Color.White,
         ) {
+
+            //  Elemento della barra di navigazione per la schermata -> FEED
+
             NavigationBarItem(
                 selected = currentSelectedScreen == Screen.FEED,
                 icon = { Icon(
@@ -42,6 +48,9 @@ fun NavigationBar(
                     Log.d("NavigationBar", "Caricato Feed Screen")
                 }
             )
+
+            //  Elemento della barra di navigazione per la schermata -> PROFILE
+
             NavigationBarItem(
                 selected = currentSelectedScreen == Screen.PROFILE,
                 icon = { Icon(

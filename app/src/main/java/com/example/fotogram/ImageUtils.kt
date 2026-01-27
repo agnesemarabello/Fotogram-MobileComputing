@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.ImageBitmap as ImageBitMap
 
+//  Converte una stringa Base64 in un oggetto ImageBitMap per porterlo usare in Image
 fun decodedBase64Image(base64String: String): ImageBitMap? {
     return try {
         val imageBytes = Base64.decode(base64String, Base64.DEFAULT)

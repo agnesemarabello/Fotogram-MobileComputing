@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+//  Schermata di caricamento mostrata all'avvio dell'app durante il controllo del SID
 @Composable
 fun LoadingScreen() {
     Box(
