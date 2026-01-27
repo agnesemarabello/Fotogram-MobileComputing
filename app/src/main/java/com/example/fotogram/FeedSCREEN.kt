@@ -38,7 +38,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.Dialog
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,7 +67,7 @@ fun FeedScreen(
 
     val context = LocalContext.current
     val fusedLocationClient = remember {
-        com.google.android.gms.location.LocationServices.getFusedLocationProviderClient(context)
+        LocationServices.getFusedLocationProviderClient(context)
     }
     var hasPermission by remember {mutableStateOf(false)}
 
@@ -72,7 +76,9 @@ fun FeedScreen(
     ) { isGranted ->
         hasPermission = isGranted
         if (isGranted) {
-            Log.d("Posizione", "Permessi ottenuti dall'utente")
+            Log.d("Posizione", "Permessi concessi dall'utente")
+        } else {
+            Log.d("Posizione", "Permessi negati dall'utente")
         }
     }
 
@@ -87,10 +93,19 @@ fun FeedScreen(
 
     LaunchedEffect(hasPermission) {
         if(hasPermission) {
-            val location = LocationHelper.getCurrentLocation(fusedLocationClient)
-            if(location != null) {
-                Log.d("Posizione", "Posizione ottenuta: Lat ${location.latitude}, Long ${location.longitude}")
-                viewModel.updateUserLocation(location)
+            try {
+                Log.d("Posizione", "Calcolo la posizione corrente...")
+                val location = fusedLocationClient.getCurrentLocation(
+                    Priority.PRIORITY_HIGH_ACCURACY,
+                    CancellationTokenSource().token
+                ).await()
+
+                if (location != null) {
+                    Log.d("Posizione", "Lat ${location.latitude}, Long ${location.longitude}")
+                    viewModel.updateUserLocation(location)
+                }
+            } catch (e: Exception) {
+                Log.e("Posizione", "Errore nel recupero della posizione: ${e.message}")
             }
         }
     }
