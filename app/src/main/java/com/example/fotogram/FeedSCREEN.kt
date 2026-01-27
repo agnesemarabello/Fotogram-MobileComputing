@@ -55,8 +55,8 @@ fun FeedScreen(
 ) {
 
     //  Caricamento iniziale del feed
-    LaunchedEffect(Unit) {
-        viewModel.loadFeed()
+    LaunchedEffect(Unit) {  //--------------------
+        viewModel.loadFeed(isRefresh = true)
     }
 
     val posts by viewModel.posts.collectAsState()
@@ -172,14 +172,17 @@ fun FeedScreen(
                     PostCard(
                         feedPostUI = feedPost,
                         onAuthorClick = { authorId ->
-                            if(authorId == myUserId) {
+                            if (authorId == myUserId) {
                                 onNavigate(Screen.PROFILE)
                             } else {
                                 onNavigateToUser(authorId)
                             }
                         },
                         onFollowToggle = {
-                            viewModel.toggleFollow(feedPost.post.authorId, feedPost.isFollowingAuthor)
+                            viewModel.toggleFollow(
+                                feedPost.post.authorId,
+                                feedPost.isFollowingAuthor
+                            )
                         },
                         isMe = feedPost.post.authorId == myUserId,
                         onPostClick = { selectedPost = feedPost }
@@ -191,10 +194,10 @@ fun FeedScreen(
             //  Caricamento automatico del feed quando si arriva in fondo alla lista
             if (posts.isNotEmpty()) {
                 item {
-                    LaunchedEffect(posts.size) {
+                    LaunchedEffect(Unit) { //--------------------
                         viewModel.loadFeed()
                     }
-                    if(isLoading) {
+                    if (isLoading) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -206,7 +209,7 @@ fun FeedScreen(
                     }
                 }
             }
-            if(!isLoading && posts.isEmpty()) {
+            if (!isLoading && posts.isEmpty()) {
                 item {
                     Box(
                         modifier = Modifier.fillParentMaxSize(),

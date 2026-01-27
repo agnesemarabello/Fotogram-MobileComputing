@@ -4,6 +4,7 @@ import android.location.Location
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,7 +34,7 @@ class FeedViewModel(private val requestManager: RequestManager, private val post
         viewModelScope.launch {
             _myUserId.value = requestManager.getMyUserId()
         }
-        loadFeed()
+      //  loadFeed() --------------------------
     }
 
     fun updateUserLocation(location: Location) {
@@ -85,9 +86,11 @@ class FeedViewModel(private val requestManager: RequestManager, private val post
 
         if(_isLoading.value) return
 
+        Log.d("PAGINAZIONE_FEED", "Chiamata a loadFeed. lastPostId inviato: $lastPostId")
         viewModelScope.launch {
             _isLoading.value = true
-
+            delay(500)
+        try{
             if(isRefresh) {
                 lastPostId = null 
             }
@@ -116,14 +119,20 @@ class FeedViewModel(private val requestManager: RequestManager, private val post
                     _posts.value = aggregatedPost
                 } else {
                     Log.d("FeedViewModel", "Caricamento feed: aggiungo nuovi post a quelli esistenti")
-                    _posts.value = _posts.value + aggregatedPost
+                    val currentPosts = _posts.value.map { it.post.id }
+                    val filteredNew = aggregatedPost.filter { it.post.id !in currentPosts }
+                    _posts.value = _posts.value + filteredNew
                 }
-                lastPostId = postIds.last()
+                if(postIds.isNotEmpty()) {
+                    lastPostId = postIds.last()
+                }
 
             } else {
                 Log.e("FeedViewModel", "Caricamento feed fallito")
             }
-
+        } catch (e: Exception) {
+            Log.e("FeedViewModel", "Errore durante il caricamento del feed: ${e.message}")
+        }
             _isLoading.value = false
         }
     }

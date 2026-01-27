@@ -10,7 +10,10 @@ fun decodedBase64Image(base64String: String): ImageBitMap? {
     return try {
         val imageBytes = Base64.decode(base64String, Base64.DEFAULT)
         val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-        bitmap.asImageBitmap()
+        if(bitmap != null) {
+            bitmap.asImageBitmap()
+        } else null
+
     } catch (e: Exception) {
         e.printStackTrace()
         null
