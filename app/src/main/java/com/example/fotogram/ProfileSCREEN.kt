@@ -81,7 +81,7 @@ fun ProfileScreen(
     modifier: Modifier = Modifier,
     onNavigate: (Screen) -> Unit,
     viewModel: ProfileViewModel
-    ) {
+) {
     val profile by viewModel.profileData.collectAsState()
     val userPosts by viewModel.userPosts.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -100,7 +100,7 @@ fun ProfileScreen(
     LaunchedEffect(Unit) {
         viewModel.loadUserProfile()
         var isPermissionGranted = checkLocationPermission(context)
-        if(isPermissionGranted) {
+        if (isPermissionGranted) {
             try {
                 val location = fusedLocationClient.getCurrentLocation(
                     Priority.PRIORITY_HIGH_ACCURACY,
@@ -110,7 +110,7 @@ fun ProfileScreen(
                     viewModel.updateUserLocation(it)
                 }
             } catch (e: Exception) {
-                Log.e("ProfileScreen", "Errore ottenendo la posizione: ${e.message}" )
+                Log.e("ProfileScreen", "Errore ottenendo la posizione: ${e.message}")
             }
         }
     }
@@ -119,109 +119,111 @@ fun ProfileScreen(
         modifier = modifier
             .statusBarsPadding()
             .background(Color.Transparent),
-        bottomBar = { NavigationBar (
-            currentSelectedScreen = Screen.PROFILE,
-            onFeedClick = { onNavigate(Screen.FEED) },
-            onProfileClick = { viewModel.loadUserProfile() }
-        ) }
+        bottomBar = {
+            NavigationBar(
+                currentSelectedScreen = Screen.PROFILE,
+                onFeedClick = { onNavigate(Screen.FEED) },
+                onProfileClick = { viewModel.loadUserProfile() }
+            )
+        }
     ) { paddingValues ->
-            if(isLoading && profile == null) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                }
-            } else {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentPadding = PaddingValues(bottom = 16.dp)
-                ) {
+        if (isLoading && profile == null) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentPadding = PaddingValues(bottom = 16.dp)
+            ) {
 
-                    item(span = { GridItemSpan(maxLineSpan) }) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
 
-                        profile?.let { data ->
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                ProfileHeaderContent(data)
+                    profile?.let { data ->
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            ProfileHeaderContent(data)
 
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 20.dp, vertical = 8.dp),
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 20.dp, vertical = 8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                OutlinedButton(
+                                    onClick = { showEditDialog = true },
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(8.dp)
                                 ) {
-                                    OutlinedButton(
-                                        onClick = { showEditDialog = true },
-                                        modifier = Modifier.weight(1f),
-                                        shape = RoundedCornerShape(8.dp)
-                                    ) {
-                                        Text("Modifica Profilo")
-                                    }
-                                    OutlinedButton(
-                                        onClick = { showNewPostDialog = true },
-                                        modifier = Modifier.weight(1f),
-                                        shape = RoundedCornerShape(8.dp)
-                                    ) {
-                                        Text("Nuovo Post")
-                                    }
+                                    Text("Modifica Profilo")
+                                }
+                                OutlinedButton(
+                                    onClick = { showNewPostDialog = true },
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Text("Nuovo Post")
                                 }
                             }
                         }
                     }
-
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        //
-                    }
-                    items(userPosts) { postUI ->
-                        val bitmap = remember(postUI.post.contentPicture) {
-                            decodedBase64Image(postUI.post.contentPicture)
-                        }
-                        Box(
-                            modifier = Modifier
-                                .aspectRatio(1f)
-                                .padding(1.dp)
-                                .clickable{ selectedPost = postUI }
-                                .background(Color.LightGray, shape = RoundedCornerShape(4.dp))
-                        ) {
-                            if(bitmap != null) {
-                                Image(
-                                    bitmap = bitmap,
-                                    contentDescription = null,
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.Crop
-                                )
-                            }
-                        }
-
-                    }
                 }
-                if(showEditDialog && profile != null) {
-                    EditProfileDialog(
-                        currentData = profile!!,
-                        onDismiss = { showEditDialog = false },
-                        onConfirm = {name, bio, birth, img ->
-                            viewModel.updateProfileDetails(name, bio, birth, img)
-                            showEditDialog = false
-                        }
-                    )
+
+                item(span = { GridItemSpan(maxLineSpan) }) {
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    //
                 }
-                if(showNewPostDialog) {
-                    CreatePostDialog(
-                        userLocation = viewModel.userLocation.collectAsState().value,
-                        onDismiss = { showNewPostDialog = false },
-                        onConfirm = { img, desc, lat, lon ->
-                            viewModel.createNewPost(img, desc ?: "", lat, lon)
-                            showNewPostDialog = false
+                items(userPosts) { postUI ->
+                    val bitmap = remember(postUI.post.contentPicture) {
+                        decodedBase64Image(postUI.post.contentPicture)
+                    }
+                    Box(
+                        modifier = Modifier
+                            .aspectRatio(1f)
+                            .padding(1.dp)
+                            .clickable { selectedPost = postUI }
+                            .background(Color.LightGray, shape = RoundedCornerShape(4.dp))
+                    ) {
+                        if (bitmap != null) {
+                            Image(
+                                bitmap = bitmap,
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
                         }
-                    )
+                    }
+
                 }
             }
+            if (showEditDialog && profile != null) {
+                EditProfileDialog(
+                    currentData = profile!!,
+                    onDismiss = { showEditDialog = false },
+                    onConfirm = { name, bio, birth, img ->
+                        viewModel.updateProfileDetails(name, bio, birth, img)
+                        showEditDialog = false
+                    }
+                )
+            }
+            if (showNewPostDialog) {
+                CreatePostDialog(
+                    userLocation = viewModel.userLocation.collectAsState().value,
+                    onDismiss = { showNewPostDialog = false },
+                    onConfirm = { img, desc, lat, lon ->
+                        viewModel.createNewPost(img, desc ?: "", lat, lon)
+                        showNewPostDialog = false
+                    }
+                )
+            }
+        }
 
     }
     selectedPost?.let { postUI ->
@@ -231,7 +233,7 @@ fun ProfileScreen(
                 usePlatformDefaultWidth = false,
                 dismissOnBackPress = true,
                 dismissOnClickOutside = true
-                )
+            )
         ) {
 
             Box(
@@ -286,7 +288,7 @@ fun ProfileHeaderContent(data: ProfileDetailsResponse) {
                 .background(Color.Gray),
             contentAlignment = Alignment.Center
         ) {
-            if(profileBitmap != null) {
+            if (profileBitmap != null) {
                 Image(
                     bitmap = profileBitmap,
                     contentDescription = "Foto profilo",
@@ -340,10 +342,15 @@ fun ProfileHeaderContent(data: ProfileDetailsResponse) {
         }
     }
 }
+
 @Composable
 fun ProfileStatColumn(label: String, count: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = count, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        Text(
+            text = count,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
         Text(text = label, style = MaterialTheme.typography.bodySmall, color = Color.DarkGray)
     }
 }
@@ -366,13 +373,13 @@ fun EditProfileDialog(
     var launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
-        uri?.let { newProfileImage = uriToBase64(context, it)}
+        uri?.let { newProfileImage = uriToBase64(context, it) }
     }
 
     val displayBitmap = remember(newProfileImage) {
-        if(newProfileImage != null) {
+        if (newProfileImage != null) {
             decodedBase64Image(newProfileImage!!)
-        } else if(currentData.profilePicture != null) {
+        } else if (currentData.profilePicture != null) {
             decodedBase64Image(currentData.profilePicture)
         } else null
     }
@@ -401,7 +408,7 @@ fun EditProfileDialog(
                         .clickable { launcher.launch("image/*") },
                     contentAlignment = Alignment.Center
                 ) {
-                    if(displayBitmap != null) {
+                    if (displayBitmap != null) {
                         Image(
                             bitmap = displayBitmap,
                             contentDescription = "Anteprima foto profilo",
@@ -435,24 +442,27 @@ fun EditProfileDialog(
 
                 OutlinedTextField(
                     value = name,
-                    onValueChange = { if(it.length <= 15) name = it},
+                    onValueChange = { if (it.length <= 15) name = it },
                     label = { Text("Username") }
                 )
 
                 OutlinedTextField(
                     value = bio,
-                    onValueChange = { if(it.length <= 100) bio = it},
+                    onValueChange = { if (it.length <= 100) bio = it },
                     label = { Text("Bio") }
                 )
 
                 OutlinedTextField(
                     value = birth,
-                    onValueChange = { if(it.length <= 10) birth = it},
+                    onValueChange = { if (it.length <= 10) birth = it },
                     isError = !isDateValid && birth.isNotEmpty(),
                     label = { Text("Data di nascita (YYYY-MM-DD)") },
                     supportingText = {
-                        if(!isDateValid && birth.isNotEmpty()) {
-                            Text("Formato da usare: AAAA-MM-DD", color = MaterialTheme.colorScheme.error)
+                        if (!isDateValid && birth.isNotEmpty()) {
+                            Text(
+                                "Formato da usare: AAAA-MM-DD",
+                                color = MaterialTheme.colorScheme.error
+                            )
                         }
                     }
                 )
@@ -464,7 +474,7 @@ fun EditProfileDialog(
                 ) {
                     TextButton(onClick = onDismiss) { Text("Annulla") }
                     Button(
-                        onClick = {onConfirm(name, bio, birth, newProfileImage)},
+                        onClick = { onConfirm(name, bio, birth, newProfileImage) },
                         enabled = isDateValid && name.isNotBlank()
                     ) {
                         Text("Conferma")
@@ -484,8 +494,8 @@ fun CreatePostDialog(
     var description by remember { mutableStateOf("") }
     var postImage by remember { mutableStateOf<String?>(null) }
 
-    var selectedPoint by remember {mutableStateOf<com.mapbox.geojson.Point?>(null)}
-    var showMap by remember {mutableStateOf(false)}
+    var selectedPoint by remember { mutableStateOf<com.mapbox.geojson.Point?>(null) }
+    var showMap by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(
@@ -494,19 +504,24 @@ fun CreatePostDialog(
         uri?.let { postImage = uriToBase64(context, it) }
     }
 
-    if(showMap) {
-        Dialog(onDismissRequest = {showMap = false}){
+    if (showMap) {
+        Dialog(onDismissRequest = { showMap = false }) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(450.dp)
-            ){
+            ) {
                 Column {
-                    val mapViewportState = rememberMapViewportState ()
+                    val mapViewportState = rememberMapViewportState()
                     LaunchedEffect(userLocation) {
                         userLocation?.let {
                             mapViewportState.setCameraOptions {
-                                center(com.mapbox.geojson.Point.fromLngLat(it.longitude, it.latitude))
+                                center(
+                                    com.mapbox.geojson.Point.fromLngLat(
+                                        it.longitude,
+                                        it.latitude
+                                    )
+                                )
                                 zoom(12.0)
                             }
                         }
@@ -541,12 +556,17 @@ fun CreatePostDialog(
                     }
                     Button(
                         onClick = {
-                            Log.d("MAP_DEBUG", "Punto selezionato: ${selectedPoint?.latitude()}, ${selectedPoint?.longitude()}")
+                            Log.d(
+                                "MAP_DEBUG",
+                                "Punto selezionato: ${selectedPoint?.latitude()}, ${selectedPoint?.longitude()}"
+                            )
                             showMap = false
-                                  },
-                        modifier = Modifier.fillMaxWidth().padding(8.dp)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
                     ) {
-                        Text("Conferma posizione" )
+                        Text("Conferma posizione")
                     }
                 }
             }
@@ -577,7 +597,7 @@ fun CreatePostDialog(
                         .clickable { launcher.launch("image/*") },
                     contentAlignment = Alignment.Center
                 ) {
-                    if(postImage != null) {
+                    if (postImage != null) {
                         val bitmap = remember(postImage) {
                             decodedBase64Image(postImage!!)
                         }
@@ -591,14 +611,14 @@ fun CreatePostDialog(
                         }
                     } else {
                         Column(
-                           horizontalAlignment = Alignment.CenterHorizontally
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                           Icon(
-                               imageVector = Icons.Filled.Add,
-                               contentDescription = null,
-                               modifier = Modifier.size(48.dp),
-                               tint = Color.DarkGray
-                           )
+                            Icon(
+                                imageVector = Icons.Filled.Add,
+                                contentDescription = null,
+                                modifier = Modifier.size(48.dp),
+                                tint = Color.DarkGray
+                            )
                             Text("Seleziona foto", color = Color.DarkGray)
                         }
                     }
@@ -611,19 +631,19 @@ fun CreatePostDialog(
                     minLines = 3
                 )
                 Button(
-                    onClick = {showMap = true},
+                    onClick = { showMap = true },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if(selectedPoint != null) Color(0xFF4CAF50) else MaterialTheme.colorScheme.primary
+                        containerColor = if (selectedPoint != null) Color(0xFF4CAF50) else MaterialTheme.colorScheme.primary
                     )
                 ) {
-                   Icon(Icons.Filled.LocationOn, contentDescription = null)
-                   Text(if(selectedPoint != null) "Posizione selezionata" else "Aggiungi posizione")
+                    Icon(Icons.Filled.LocationOn, contentDescription = null)
+                    Text(if (selectedPoint != null) "Posizione selezionata" else "Aggiungi posizione")
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    TextButton(onClick = onDismiss) { Text("Annulla")}
+                    TextButton(onClick = onDismiss) { Text("Annulla") }
                     Button(
                         onClick = {
                             postImage?.let {
@@ -632,7 +652,8 @@ fun CreatePostDialog(
                                     description.ifBlank { null },
                                     selectedPoint?.latitude(),
                                     selectedPoint?.longitude()
-                                ) }
+                                )
+                            }
                         },
                         enabled = postImage != null
                     ) {

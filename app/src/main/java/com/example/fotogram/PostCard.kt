@@ -69,13 +69,17 @@ fun PostCard(
             .padding(vertical = 8.dp)
     ) {
         Column {
+            //  Intestazione con autore, immagine di profilo, pulsante di follow/unfollow ed eventualmente la posizione
             PostHeader(
                 feedPostUI = feedPostUI,
                 onAuthorClick = onAuthorClick,
                 onFollowToggle = onFollowToggle,
                 isMe = isMe
             )
+            //  Immagine del post con click per il fullscreen
             PostContentImage(post = feedPostUI.post, isFullScreen = isFullScreen, onClick = onPostClick)
+
+            //  Didascalia e data di pubblicazione
             PostCaption(post = feedPostUI.post)
         }
     }
@@ -109,6 +113,7 @@ fun PostHeader(
             val profileImageBitmap = feedPostUI.authorProfilePicture?.let { base64 ->
                 decodedBase64Image(base64)
             }
+            // Immagine di profilo dell'autore
             Box(
                 modifier = Modifier
                     .size(40.dp)
@@ -134,7 +139,7 @@ fun PostHeader(
                     style = MaterialTheme.typography.titleMedium,
                 )
 
-
+                //  Visualizza il link alla posizione (Dialog) solo se sono presenti le coordinate
                 if(hasCoordinates) {
                         Row (
                             modifier = Modifier.clickable { showMapDialog = true },
@@ -158,6 +163,7 @@ fun PostHeader(
         }
             Spacer(modifier = Modifier.weight(1f))
 
+        //   Pulsante di follow/unfollow mostrato solo se il post non appartiene all'utente loggato
            if(!isMe) {
                TextButton(
                    onClick = onFollowToggle
@@ -171,6 +177,7 @@ fun PostHeader(
                    )
                }
            }
+        //  Mostra il dialog della mappa se richiesto e se sono presenti le coordinate
             if(showMapDialog && hasCoordinates) {
                 PostLocationDialog(
                     location = feedPostUI.post.location,
@@ -229,6 +236,9 @@ fun PostCaption(post: Post) {
     )
 }
 
+/**
+    Dialog che implementa la mappa con la posizione del post
+**/
 @Composable
 fun PostLocationDialog(
     location: PostLocation,
@@ -246,6 +256,7 @@ fun PostLocationDialog(
             shape = RoundedCornerShape(16.dp)
         ) {
             Column {
+                //  Stato la mappa sulla posizione del post
                 val mapViewportState = rememberMapViewportState {
                     setCameraOptions {
                         center(point)
@@ -267,6 +278,7 @@ fun PostLocationDialog(
                             circleOpacity = 1.0
                         )
 
+                        //  Posizione attuale dell'utente
                         MapEffect(Unit) { mapView ->
                             mapView.location.updateSettings {
                                 locationPuck = createDefault2DPuck(withBearing = true)

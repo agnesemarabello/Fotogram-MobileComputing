@@ -54,12 +54,15 @@ fun FeedScreen(
     viewModel: FeedViewModel
 ) {
 
-    //  Caricamento iniziale del feed
-    LaunchedEffect(Unit) {  //--------------------
-        viewModel.loadFeed(isRefresh = true)
+    val posts by viewModel.posts.collectAsState()
+
+    //  Caricamento iniziale del feed al primo avvio
+    LaunchedEffect(Unit) {
+        if(posts.isEmpty()) {
+            viewModel.loadFeed(isRefresh = true)
+        }
     }
 
-    val posts by viewModel.posts.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val scope = rememberCoroutineScope()
     val myUserId by viewModel.myUserId.collectAsState()
