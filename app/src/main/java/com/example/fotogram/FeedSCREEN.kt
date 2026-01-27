@@ -103,6 +103,8 @@ fun FeedScreen(
                 if (location != null) {
                     Log.d("Posizione", "Lat ${location.latitude}, Long ${location.longitude}")
                     viewModel.updateUserLocation(location)
+                } else {
+                    Log.e("Posizione", "Posizione nulla")
                 }
             } catch (e: Exception) {
                 Log.e("Posizione", "Errore nel recupero della posizione: ${e.message}")

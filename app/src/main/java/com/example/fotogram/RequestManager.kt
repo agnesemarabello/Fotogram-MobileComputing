@@ -157,7 +157,6 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
             }
             if(response.status.value == 200) {
                 Log.i("RequestManager", "Immagine del profilo aggiornata con successo.")
-                Log.i("RequestManager", "Response: ${response.body<String>()}")
                 return response.body<ProfileDetailsResponse>()
             } else {
                 Log.d("RequestManager", "Aggiornamento immagine del profilo fallito. Status code: ${response.status.value}")
@@ -185,7 +184,6 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
         }
 
         val usernameOK = if(newUsername.length > 15) newUsername.take(15) else newUsername
-        Log.i("RequestManager", "Username da inviare: $usernameOK")
 
         val requestBody = UpdateProfileRequest(
             username = usernameOK,
@@ -193,7 +191,6 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
             dateOfBirth = if(newDateOfBirth.isNullOrBlank()) null else newDateOfBirth
         )
 
-        Log.i("RequestManager", "Request Body da inviare: $requestBody")
         Log.i("RequestManager", "Aggiornamento profilo in corso...")
 
         try{
@@ -204,7 +201,7 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
             }
 
             if(response.status.value == 200) {
-                Log.i("RequestManager", "Profilo aggiornato con successo.")
+                Log.i("RequestManager", "Profilo aggiornato con successo: ${newUsername}, ${newBio}, ${newDateOfBirth}")
                 Log.i("RequestManager", "Response: ${response.body<String>()}")
                 return response.body<ProfileDetailsResponse>()
             } else {
@@ -247,8 +244,7 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
             } else null
         )
 
-        Log.i("RequestManager", "Creazione post in corso...Location: ${requestBody.location?.latitude}, ${requestBody.location?.longitude}")
-        Log.d("REQUEST_BODY_CHECK", "JSON che sto per inviare -> Location Object: ${requestBody.location}")
+        Log.i("RequestManager", "Creazione post in corso...")
 
         return try {
             val response = httpClient.post(CREATE_POST_ENDPOINT) {
@@ -259,8 +255,7 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
 
             if(response.status.isSuccess()) {
                 val createdPost = response.body<Post>()
-                Log.i("RequestManager", "Post creato con successo. ID: ${createdPost.id}")
-                Log.i("RequestManager", "Location ricevuta dal server: ${createdPost.location?.latitude}, ${createdPost.location?.longitude}")
+                Log.i("RequestManager", "Post creato con successo. ID: ${createdPost.id}, -> Location: ${createdPost.location?.latitude}, ${createdPost.location?.longitude}")
 
                 true
             } else {
@@ -282,7 +277,6 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
             return null
         }
 
-        Log.i("RequestManager", "Caricamento dettagli utente ID: $userId in corso...")
         try {
             val response = httpClient.get(USER_BY_ID_ENDPOINT) {
                 header("x-session-id", SID)
@@ -310,7 +304,6 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
             return false
         }
 
-        Log.i("RequestManager", "Richiesta di follow per l'utente ID: $targetId in corso...")
         try {
             val response = httpClient.put(FOLLOW_USER_ENDPOINT) {
                 header("x-session-id", SID)
@@ -339,7 +332,6 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
             return false
         }
 
-        Log.i("RequestManager", "Richiesta di unfollow per l'utente ID: $targetId in corso...")
         try {
             val response = httpClient.delete(UNFOLLOW_USER_ENDPOINT) {
                 header("x-session-id", SID)
@@ -359,33 +351,6 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
         }
     }
 
-    suspend fun getSinglePost(postId: Int): Post? {
-        val SINGLE_POST_ENDPOINT = BASE_URL + "/post/$postId"
-        val SID = dataStoreManager.getSID()
-
-        if(SID.isNullOrEmpty()) {
-            Log.d("RequestManager", "Impossibile ottenere il post -> SID mancante.")
-            return null
-        }
-        Log.i("RequestManager", "Caricamento post ID: $postId in corso...")
-        try {
-            val response = httpClient.get(SINGLE_POST_ENDPOINT) {
-                header("x-session-id", SID)
-                accept(ContentType.Application.Json)
-            }
-            if(response.status.isSuccess()) {
-                Log.i("RequestManager", "Post ID: $postId caricato con successo.")
-                return response.body<Post>()
-            } else {
-                Log.d("RequestManager", "Caricamento post ID: $postId fallito. Status code: ${response.status.value}")
-                return null
-            }
-        } catch (e : Exception) {
-            Log.d("RequestManager", "Errore durante il caricamento del post ID: $postId -> ${e.message}")
-            return null
-        }
-    }
-
     suspend fun getUserPostsRequest(authorId: Int): List<Int>? {
         val USER_POSTS_ENDPOINT = BASE_URL + "post/list/$authorId"
         val SID = dataStoreManager.getSID()
@@ -393,7 +358,6 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
             Log.d("RequestManager", "Impossibile ottenere i post utente -> SID mancante.")
             return null
         }
-        Log.i("RequestManager", "Caricamento post author ID: $authorId in corso...")
         try {
             val response = httpClient.get(USER_POSTS_ENDPOINT) {
                 header("x-session-id", SID)
@@ -429,7 +393,6 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
             return null
         }
 
-        Log.i("RequestManager", "Caricamento Feed in corso...")
         try {
             val response = httpClient.get(FEED_ENDPOINT) {
                 header("x-session-id", SID)
@@ -447,9 +410,9 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
                 }
                 accept(ContentType.Application.Json)
             }
+            Log.i("RequestManager", "Caricamento Feed in corso...")
 
             if(response.status.isSuccess()) {
-                Log.i("RequestManager", "Feed caricato con successo.")
                 val ids = response.body<List<Int>>()
                 Log.i("RequestManager", "Feed Post IDs: $ids")
                 return ids
@@ -463,46 +426,11 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
         }
     }
 
-    suspend fun getFeedPostIds(
-        maxPostId: Int? = null,
-        limit: Int? = null
-    ): List<Int>? {
-        val FEED_ENDPOINT = BASE_URL + "feed"
-        val SID = dataStoreManager.getSID()
-        if(SID.isNullOrEmpty()) return null
-
-        try {
-            val response = httpClient.get(FEED_ENDPOINT) {
-                header("x-session-id", SID)
-
-                maxPostId?.let {
-                    parameter("maxPostId", it)
-                }
-
-                limit?.let {
-                    parameter("limit", it)
-                }
-            }
-
-            if(response.status.isSuccess()) {
-                Log.i("RequestManager", "Post IDs caricati con successo.")
-                return response.body<List<Int>>()
-            } else {
-                Log.d("RequestManager", "Caricamento Post IDs fallito. Status code: ${response.status.value}")
-                return null
-            }
-        } catch (e: Exception) {
-            Log.d("RequestManager", "Errore durante il caricamento dei Post IDs -> ${e.message}")
-            return null
-        }
-    }
-
     suspend fun getPostByIdRequest(postId: Int): Post? {
         val POST_BY_ID_ENDPOINT = BASE_URL + "post/$postId"
         val SID = dataStoreManager.getSID()
         if(SID.isNullOrEmpty()) return null
 
-        Log.i("RequestManager", "Caricamento Post ID: $postId in corso...")
         try {
             val response = httpClient.get(POST_BY_ID_ENDPOINT) {
                 header("x-session-id", SID)
@@ -521,33 +449,4 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
             return null
         }
     }
-
-    suspend fun getFeedPreviews(maxPostId: Int? = null): List<FeedPreview>? {
-        val FEED_ENDPOINT = BASE_URL + "feed"
-        val SID = dataStoreManager.getSID()
-        if(SID.isNullOrEmpty()) return null
-
-        try {
-            val response = httpClient.get(FEED_ENDPOINT) {
-                header("x-session-id", SID)
-
-                maxPostId?.let {
-                    parameter("maxPostId", it)
-                }
-                accept(ContentType.Application.Json)
-            }
-
-            if(response.status.isSuccess()) {
-                Log.i("RequestManager", "Feed Previews caricati con successo.")
-                return response.body<List<FeedPreview>>()
-            } else {
-                Log.d("RequestManager", "Caricamento Feed Previews fallito. Status code: ${response.status.value}")
-                return null
-            }
-        } catch (e: Exception) {
-            Log.d("RequestManager", "Errore durante il caricamento dei Feed Previews -> ${e.message}")
-            return null
-        }
-    }
-
 }

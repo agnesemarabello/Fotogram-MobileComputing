@@ -44,7 +44,7 @@ class ProfileViewModel(
             _isLoading.value = true
             val uid = dataStoreManager.getUID()
 
-            Log.d("ProfileViewModel", "UID recuperato: $uid")
+           // Log.d("ProfileViewModel", "UID recuperato: $uid")
             if (uid != null) {
                 val details = requestManager.getUserDetailsRequest(uid)
                 Log.d("ProfileViewModel", "Dettagli profilo caricati: $details")
