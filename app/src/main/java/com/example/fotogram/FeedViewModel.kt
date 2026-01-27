@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-
 class FeedViewModel(private val requestManager: RequestManager, private val postRepository: PostRepository) : ViewModel() {
 
     private val _posts = MutableStateFlow<List<FeedPostUI>>(emptyList())

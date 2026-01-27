@@ -255,12 +255,6 @@ fun ProfileScreen(
                     ) {
                         PostCard(
                             feedPostUI = postUI,
-                                /*(
-                                post = post,
-                                authorUsername = profile?.username,
-                                authorProfilePicture = profile?.profilePicture,
-                                isFollowingAuthor = false
-                            )*/
                             isFullScreen = true,
                             onAuthorClick = { selectedPost = null },
                             onFollowToggle = {},
@@ -365,6 +359,9 @@ fun EditProfileDialog(
     var birth by remember { mutableStateOf(currentData.dateOfBirth ?: "") }
     var newProfileImage by remember { mutableStateOf<String?>(null) }
 
+    val datePattern = remember { Regex("^\\d{4}-\\d{2}-\\d{2}$") }
+    val isDateValid = birth.isEmpty() || datePattern.matches(birth)
+
     val context = LocalContext.current
     var launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -435,7 +432,7 @@ fun EditProfileDialog(
 
                 }
 
-                //
+
                 OutlinedTextField(
                     value = name,
                     onValueChange = { if(it.length <= 15) name = it},
@@ -450,8 +447,14 @@ fun EditProfileDialog(
 
                 OutlinedTextField(
                     value = birth,
-                    onValueChange = { birth = it },
-                    label = { Text("Data di nascita (YYYY-MM-DD)") }
+                    onValueChange = { if(it.length <= 10) birth = it},
+                    isError = !isDateValid && birth.isNotEmpty(),
+                    label = { Text("Data di nascita (YYYY-MM-DD)") },
+                    supportingText = {
+                        if(!isDateValid && birth.isNotEmpty()) {
+                            Text("Formato da usare: AAAA-MM-DD", color = MaterialTheme.colorScheme.error)
+                        }
+                    }
                 )
 
                 Row(
@@ -460,7 +463,10 @@ fun EditProfileDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onDismiss) { Text("Annulla") }
-                    Button(onClick = {onConfirm(name, bio, birth, newProfileImage)}) {
+                    Button(
+                        onClick = {onConfirm(name, bio, birth, newProfileImage)},
+                        enabled = isDateValid && name.isNotBlank()
+                    ) {
                         Text("Conferma")
                     }
                 }
