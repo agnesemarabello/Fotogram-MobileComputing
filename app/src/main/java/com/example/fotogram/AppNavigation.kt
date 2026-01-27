@@ -27,9 +27,15 @@ fun AppNavigator(dataStoreManager: DataStoreManager) {
 
     var targetUserId by remember { mutableStateOf<Int?>(null) }
 
-    val feedViewModel: FeedViewModel = viewModel(factory = FeedViewModelFactory(LocalContext.current))
+//    val feedViewModel: FeedViewModel = viewModel(factory = FeedViewModelFactory(LocalContext.current))
     val feedListState = rememberLazyListState()
+
+    val context = LocalContext.current
     val requestManager = remember { RequestManager(dataStoreManager) }
+    val postRepository = remember { PostRepository(requestManager) }
+    val feedViewModel: FeedViewModel = viewModel {
+        FeedViewModel(requestManager, postRepository)
+    }
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
@@ -54,7 +60,11 @@ fun AppNavigator(dataStoreManager: DataStoreManager) {
     when(currentScreen) {
 
         Screen.SETUP -> {
+            val setUpProfileViewModel: SetUpProfileViewModel = viewModel {
+                SetUpProfileViewModel(requestManager, dataStoreManager)
+            }
             SetUpProfileScreen(
+                viewModel = setUpProfileViewModel,
                 onRegistrationComplete = {
                     currentScreen = Screen.FEED
                 }
@@ -75,7 +85,11 @@ fun AppNavigator(dataStoreManager: DataStoreManager) {
         }
 
         Screen.PROFILE -> {
+            val profileViewModel: ProfileViewModel = viewModel {
+                ProfileViewModel(requestManager, dataStoreManager, postRepository)
+            }
             ProfileScreen(
+                viewModel = profileViewModel,
                 onNavigate = { screen -> currentScreen = screen }
             )
         }
@@ -84,9 +98,9 @@ fun AppNavigator(dataStoreManager: DataStoreManager) {
             if(targetUserId == null) {
                 LoadingScreen()
             } else {
-                val userDetailViewModel: UserDetailViewModel = viewModel(
-                    factory = UserDetailViewModelFactory(requestManager)
-                )
+                val userDetailViewModel: UserDetailViewModel = viewModel {
+                    UserDetailViewModel(requestManager)
+                }
                 UserDetailScreen(
                     userId = targetUserId!!,
                     viewModel = userDetailViewModel,

@@ -57,7 +57,6 @@ fun UserDetailScreen(
     val data by viewModel.userData.collectAsState()
     val posts by viewModel.userPosts.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-    Log.i("DEBUG_USER", "UserId: $userId")
     var selectedPost by remember { mutableStateOf<Post?>(null) }
 
 

@@ -50,9 +50,7 @@ import java.io.ByteArrayOutputStream
 @Composable
 fun SetUpProfileScreen(
     onRegistrationComplete: () -> Unit,
-    viewModel: SetUpProfileViewModel = viewModel(
-        factory = SetUpProfileViewModelFactory(LocalContext.current)
-    )
+    viewModel: SetUpProfileViewModel
 ) {
     var username by remember { mutableStateOf("") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }

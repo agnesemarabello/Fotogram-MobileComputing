@@ -40,7 +40,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.launch
-import kotlin.math.log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,16 +48,13 @@ fun FeedScreen(
     onNavigate: (Screen) -> Unit,
     onNavigateToUser: (Int) -> Unit,
     listState: LazyListState = rememberLazyListState(),
-    viewModel: FeedViewModel = viewModel(
-        factory = FeedViewModelFactory(LocalContext.current)
-    )
+    viewModel: FeedViewModel
 ) {
 
     LaunchedEffect(Unit) {
         viewModel.loadFeed()
     }
 
-    val isRefreshing by viewModel.isLoading.collectAsState()
     val posts by viewModel.posts.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val scope = rememberCoroutineScope()
@@ -124,7 +120,7 @@ fun FeedScreen(
     ) { paddingValues ->
 
         PullToRefreshBox(
-            isRefreshing = isLoading && posts.isNotEmpty(), //Mostra l'indicatore di refresh solo se non è il caricamento iniziale
+            isRefreshing = isLoading && posts.isNotEmpty(),
             onRefresh = { viewModel.refreshFeed() },
             modifier = Modifier.padding(paddingValues = PaddingValues())
         ) {
@@ -233,7 +229,6 @@ fun FeedScreen(
                             isFullScreen = true,
                             onAuthorClick = { authorId ->
                                 selectedPost = null
-                                Log.d("SUCAAAA", " authorId = $authorId")
                                 if(authorId == myUserId) onNavigate(Screen.PROFILE)
                                 else onNavigateToUser(authorId)
                             },

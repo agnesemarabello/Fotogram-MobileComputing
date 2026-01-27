@@ -78,7 +78,7 @@ import com.mapbox.maps.plugin.locationcomponent.location
 fun ProfileScreen(
     modifier: Modifier = Modifier,
     onNavigate: (Screen) -> Unit,
-    viewModel: ProfileViewModel = viewModel(factory = ProfileViewModelFactory(LocalContext.current))
+    viewModel: ProfileViewModel
     ) {
     val profile by viewModel.profileData.collectAsState()
     val userPosts by viewModel.userPosts.collectAsState()
