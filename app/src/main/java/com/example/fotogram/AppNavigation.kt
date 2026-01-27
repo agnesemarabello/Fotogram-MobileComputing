@@ -7,7 +7,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -16,7 +15,6 @@ import kotlinx.coroutines.delay
 enum class Screen {
     SETUP,
     FEED,
-  //  POST,
     PROFILE,
     USER_DETAIL
 }
@@ -27,7 +25,6 @@ fun AppNavigator(dataStoreManager: DataStoreManager) {
 
     var targetUserId by remember { mutableStateOf<Int?>(null) }
 
-//    val feedViewModel: FeedViewModel = viewModel(factory = FeedViewModelFactory(LocalContext.current))
     val feedListState = rememberLazyListState()
 
     val context = LocalContext.current
@@ -36,7 +33,6 @@ fun AppNavigator(dataStoreManager: DataStoreManager) {
     val feedViewModel: FeedViewModel = viewModel {
         FeedViewModel(requestManager, postRepository)
     }
-    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         delay(3000)
