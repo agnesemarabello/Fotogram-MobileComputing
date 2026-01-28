@@ -28,7 +28,7 @@ class UserDetailViewModel(private val requestManager: RequestManager) : ViewMode
             Log.i("DETTAGLI_UTENTE", "Dettagli utente caricati: $details")
             if(details != null) {
                 _userData.value = details
-                val postIds = requestManager.getUserPostsRequest(userId)
+                val postIds = requestManager.getUserPostsRequest(userId, limit = 20)
                 val loadedPosts = postIds?.mapNotNull { postId ->
                     requestManager.getPostByIdRequest(postId)
                 } ?: emptyList()

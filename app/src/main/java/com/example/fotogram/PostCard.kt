@@ -23,7 +23,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
@@ -193,7 +195,6 @@ fun PostContentImage(post: Post, isFullScreen: Boolean, onClick: () -> Unit) {
         decodedBase64Image(post.contentPicture)
     }
 
-    val imageHeight = if (isFullScreen) 500.dp else 400.dp
 
     if (imageBitmap != null) {
         Image(
@@ -202,8 +203,11 @@ fun PostContentImage(post: Post, isFullScreen: Boolean, onClick: () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { onClick() }
-                .requiredHeight(imageHeight),
-            contentScale = ContentScale.Crop
+                .then(
+                    if(isFullScreen) Modifier.wrapContentHeight()
+                            else Modifier.heightIn(min = 200.dp, max = 550.dp)
+                ),
+            contentScale = ContentScale.FillWidth
         )
     }
 }

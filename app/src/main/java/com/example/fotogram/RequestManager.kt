@@ -422,9 +422,9 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
     /*
     *** getUserPostsRequest ***:
         Recupera i post di utente dato un AuthorId.
-        Restituisce una lista di post nel caso sia presente almeno un post, altrimenti niente.
+        Il server restituisce una lista di post nel caso sia presente almeno un post (max 20 post), altrimenti niente.
      */
-    suspend fun getUserPostsRequest(authorId: Int): List<Int>? {
+    suspend fun getUserPostsRequest(authorId: Int, maxPostId: Int? = null, limit: Int? = 20): List<Int>? {
         val USER_POSTS_ENDPOINT = BASE_URL + "post/list/$authorId"
         val SID = dataStoreManager.getSID()
         if(SID.isNullOrEmpty()) {
@@ -434,6 +434,12 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
         try {
             val response = httpClient.get(USER_POSTS_ENDPOINT) {
                 header("x-session-id", SID)
+                maxPostId?.let {
+                    parameter("maxPostId", it)
+                }
+                limit?.let {
+                    parameter("limit", it)
+                }
                 accept(ContentType.Application.Json)
             }
             if(response.status.isSuccess()) {
