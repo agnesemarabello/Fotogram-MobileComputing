@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
+/*** SCHERMATA PER LA VISUALIZZAZIONE DEL PROFILO DI UN ALTRO UTENTE ***/
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserDetailScreen(
@@ -59,9 +60,9 @@ fun UserDetailScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     var selectedPost by remember { mutableStateOf<Post?>(null) }
 
-
+    //  Carica i dettagli dell'utente ogni volta che l'UID cambia
     LaunchedEffect(userId) {
-        Log.i("DEBUG", "Caricamento dettagli utente per userId: $userId .......")
+        Log.i("DEBUG", "Caricamento dettagli utente per l'UID: $userId ...")
         viewModel.loadUser(userId)
     }
 
@@ -117,6 +118,8 @@ fun UserDetailScreen(
                         data?.let { user ->
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 ProfileHeaderContent(user)
+
+                                //  Pulsante Segui/Smetti di seguire
                                 Button(
                                     onClick = {
                                         viewModel.toggleFollow(

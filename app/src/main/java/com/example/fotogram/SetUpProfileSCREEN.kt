@@ -46,6 +46,9 @@ import coil.compose.AsyncImage
 import java.io.ByteArrayOutputStream
 
 
+/*** SCHERMATA DI SETUP DEL PROFILO ***:
+ *   Configurazione iniziale del profilo in cui l'utente inserisce username e foto profilo
+ **/
 @Composable
 fun SetUpProfileScreen(
     onRegistrationComplete: () -> Unit,
@@ -57,6 +60,7 @@ fun SetUpProfileScreen(
     val context = LocalContext.current
     val isLoading by viewModel.isLoading.collectAsState()
 
+    // Selezione dell'immagine dalla galleria, successivamente convertita in base64
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -86,6 +90,7 @@ fun SetUpProfileScreen(
             contentAlignment = Alignment.Center
         ) {
             if(imageUri != null) {
+                // Mostra l'immagine appena selezionata
                 AsyncImage(
                     model = imageUri,
                     contentDescription = null,
@@ -123,6 +128,7 @@ fun SetUpProfileScreen(
     }
 }
 
+// Funzione per convertire l'immagine selezionata in una stringa base64 compressa per facilitare il caricamento sul server
 fun uriToBase64(context: Context, uri: Uri): String? {
     return try {
         val inputStream = context.contentResolver.openInputStream(uri)

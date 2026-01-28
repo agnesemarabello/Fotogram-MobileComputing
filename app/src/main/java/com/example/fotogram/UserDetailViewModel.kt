@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+/*** UserDetailViewModel ***:
+     Gestisce la logica di business per la schermata del profilo di altri utenti
+ */
 class UserDetailViewModel(private val requestManager: RequestManager) : ViewModel() {
     private val _userData = MutableStateFlow<ProfileDetailsResponse?>(null)
     val userData: StateFlow<ProfileDetailsResponse?> = _userData.asStateFlow()
@@ -18,6 +21,7 @@ class UserDetailViewModel(private val requestManager: RequestManager) : ViewMode
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    //  Recupera e carica i dettagli dell'utente e i suoi post
     fun loadUser(userId: Int) {
         Log.i("DETTAGLI_UTENTE", "Caricamento dettagli utente per userId: $userId -> ${_isLoading.value}")
         if(_isLoading.value) return
@@ -38,6 +42,8 @@ class UserDetailViewModel(private val requestManager: RequestManager) : ViewMode
             _isLoading.value = false
         }
     }
+
+    // Gestisce l'azione di follow/unfollow di un utente
     fun toggleFollow(
         userId: Int,
         isCurrentlyFollowing: Boolean,
@@ -50,6 +56,7 @@ class UserDetailViewModel(private val requestManager: RequestManager) : ViewMode
                 requestManager.followUserRequest(userId)
             }
             if(success) {
+                // Aggiorna lo stato del profilo utente dopo l'azione di follow/unfollow
                 val updateDetails = requestManager.getUserDetailsRequest(userId)
                 if(updateDetails != null) {
                     _userData.value = updateDetails

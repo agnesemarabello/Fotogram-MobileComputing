@@ -9,6 +9,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+/**
+ *** ProfileViewModel ***:
+Gestisce la logica di business per la schermata del profilo utente
+ */
 class ProfileViewModel(
     private val requestManager: RequestManager,
     private val dataStoreManager: DataStoreManager,
@@ -24,11 +28,10 @@ class ProfileViewModel(
     val userPosts: StateFlow<List<FeedPostUI>> = _userPosts.asStateFlow()
 
     private val _myUserId = MutableStateFlow<Int?>(null)
-    val myUserId: StateFlow<Int?> = _myUserId.asStateFlow()
-
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+    //  Recupero dell'UID e caricamento del profilo utente all'inizializzazione
     init {
         viewModelScope.launch {
             _myUserId.value = requestManager.getMyUserId()
@@ -36,15 +39,17 @@ class ProfileViewModel(
         loadUserProfile()
     }
 
+    //  Aggiorna la posizione dell'utente
     fun updateUserLocation(location: Location) {
         _userLocation.value = location
     }
+
+    //  Carica il profilo completo utente
     fun loadUserProfile() {
         viewModelScope.launch {
             _isLoading.value = true
             val uid = dataStoreManager.getUID()
 
-           // Log.d("ProfileViewModel", "UID recuperato: $uid")
             if (uid != null) {
                 val details = requestManager.getUserDetailsRequest(uid)
                 Log.d("ProfileViewModel", "Dettagli profilo caricati: $details")
@@ -75,6 +80,9 @@ class ProfileViewModel(
             _isLoading.value = false
         }
     }
+
+
+    //  Aggiorna i dettagli del profilo utente: username, bio, data di nascita e immagine del profilo
     fun updateProfileDetails(username: String, bio: String, dateOfBirth: String, base64img: String?) {
         viewModelScope.launch {
             requestManager.updateProfileRequest(username, bio, dateOfBirth)
@@ -84,6 +92,8 @@ class ProfileViewModel(
             loadUserProfile()
         }
     }
+
+    //  Crea un nuovo post con immagine, descrizione e posizione opzionale
     fun createNewPost(img: String, description: String, lat: Double?, lon: Double?) {
         viewModelScope.launch {
             Log.d("API_DEBUG", "Memorizzo Laz: $lat, Lon: $lon")

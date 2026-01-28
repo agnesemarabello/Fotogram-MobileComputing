@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+/*** SetUpProfileViewModel ***:
+     Gestisce la logica per la configurazione del profilo utente durante il SETUP
+ ***/
 class SetUpProfileViewModel(
     private val requestManager: RequestManager,
     private val dataStoreManager: DataStoreManager

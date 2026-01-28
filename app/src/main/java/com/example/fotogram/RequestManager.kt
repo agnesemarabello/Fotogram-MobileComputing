@@ -93,8 +93,7 @@ data class FeedPostUI(
 )
 
 class RequestManager(private val dataStoreManager: DataStoreManager) {
-    /*
-    *** registrationRequest ***:
+    /*** registrationRequest ***:
         Registra un nuovo utente.
         Restituisce UserRegistrationResponse contente SessionId(SID) e UserId(UID) in caso di successo, null altrimenti.
      */
@@ -126,8 +125,7 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
         return dataStoreManager.getUID()
     }
 
-    /*
-    *** getUserDetailsRequest ***:
+    /*** getUserDetailsRequest ***:
         Recupera i dettagli utente dato un UserId(UID).
         Restituisce un oggetto ProfileDetailsResponse in caso di successo, altrimenti null.
      */
@@ -158,8 +156,7 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
         }
     }
 
-    /*
-    *** CreatePostRequest ***:
+    /*** CreatePostRequest ***:
         Carica un nuovo post sul server con immagine in base64, un testo e una posizione(opzionale).
      */
     suspend fun createPostRequest(
@@ -215,8 +212,7 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
         }
     }
 
-    /*
-    *** getFeedRequest ***:
+    /*** getFeedRequest ***:
         Recupera l'elenco degli ID dei post che compongono il feed dell'utente.
      */
     suspend fun getFeedRequest(
@@ -264,8 +260,7 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
         }
     }
 
-    /*
-    *** updateProfileRequest ***:
+    /*** updateProfileRequest ***:
         Carica/aggiorna sul server le informazioni del profilo: username, bio, dateOfBirth.
      */
     suspend fun updateProfileRequest(
@@ -315,8 +310,7 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
         }
     }
 
-    /*
-    *** updateProfilePictureRequest ***:
+    /*** updateProfilePictureRequest ***:
         Carica sul server l'immagine di profilo: imgBase64.
      */
     suspend fun updateProfilePictureRequest(newImgBase64: String): ProfileDetailsResponse? {
@@ -355,8 +349,7 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
         }
     }
 
-    /*
-    *** followUserRequest ***:
+    /*** followUserRequest ***:
         Richiesta di follow di un utente $targetId.
      */
     suspend fun followUserRequest(targetId: Int): Boolean {
@@ -387,8 +380,7 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
         }
     }
 
-    /*
-    *** unfollowUserRequest ***:
+    /*** unfollowUserRequest ***:
         Richiesta di unfollow di un utente $targetId.
      */
     suspend fun unfollowUserRequest(targetId: Int): Boolean {
@@ -419,8 +411,7 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
         }
     }
 
-    /*
-    *** getUserPostsRequest ***:
+    /*** getUserPostsRequest ***:
         Recupera i post di utente dato un AuthorId.
         Il server restituisce una lista di post nel caso sia presente almeno un post (max 20 post), altrimenti niente.
      */
@@ -460,10 +451,9 @@ class RequestManager(private val dataStoreManager: DataStoreManager) {
         }
     }
 
-    /*
-        *** getPostByIdRequest ***:
+    /*** getPostByIdRequest ***:
             Recupera le informazioni di post dato un $postId.
-         */
+    */
     suspend fun getPostByIdRequest(postId: Int): Post? {
         val POST_BY_ID_ENDPOINT = BASE_URL + "post/$postId"
         val SID = dataStoreManager.getSID()

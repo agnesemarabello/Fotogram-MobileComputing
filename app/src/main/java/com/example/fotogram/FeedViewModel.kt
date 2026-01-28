@@ -34,7 +34,6 @@ class FeedViewModel(private val requestManager: RequestManager, private val post
         viewModelScope.launch {
             _myUserId.value = requestManager.getMyUserId()
         }
-      //  loadFeed() --------------------------
     }
 
     fun updateUserLocation(location: Location) {
